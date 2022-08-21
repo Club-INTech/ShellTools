@@ -11,6 +11,7 @@ import controller_rpc as rpc
 import matplotlib.pyplot as plt
 import matplotlib.transforms as tsf
 import numpy as np
+
 from utility.match import Match
 
 TRACKER_SETUP_TIMEOUT_S = 3

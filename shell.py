@@ -21,10 +21,11 @@ import colorama
 import controller_rpc as rpc
 import matplotlib.pyplot as plt
 import numpy as np
-import remote
-import tracker as trk
 from colorama import Fore, Style
 from keyboard import block_key, is_pressed, send, unhook_all
+
+import remote
+import tracker as trk
 from tracker import Tracker
 from utility.match import Match
 
