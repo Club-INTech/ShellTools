@@ -4,4 +4,4 @@ pytest-asyncio
 cppimport
 mock-serial
 
-git+https://github.com/StarQTius/Unpadded#egg=unpadded
+git+https://github.com/StarQTius/Unpadded

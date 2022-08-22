@@ -7,6 +7,7 @@ import multiprocessing as mp
 import time as tm
 from collections import deque
 from enum import Enum
+from random import randint
 
 import serial as sr
 import unpadded as upd
@@ -14,9 +15,8 @@ import unpadded as upd
 from utility.match import Match
 
 IO_REFRESH_DELAY_S = 50e-3
-SERIAL_TIMEOUT_S = 1e-3
-KEEPALIVE_DELAY_S = 500e-3
 GET_ACTION_RESPONSE_DELAY_S = 1e-3
+SERIAL_TIMEOUT_S = 500e-3
 
 
 class Remote(upd.Client):
@@ -24,15 +24,19 @@ class Remote(upd.Client):
     Handles a serial communication stream with a remote device
     """
 
-    def __init__(self, port):
+    def __init__(self, port, dispatcher, reply_key):
         """
         Start listening to a serial port and hold a pipe to a tracker process
         """
+
         self.__pipe, remote_pipe = mp.Pipe()
+        self.__dispatcher = dispatcher
         self.__loop = aio.get_event_loop()
         self.__future = None
         self.__process = mp.Process(
-            target=_RemoteProcess(port=port, pipe=remote_pipe),
+            target=_RemoteProcess(
+                port=port, pipe=remote_pipe, dispatcher=dispatcher, reply_key=reply_key
+            ),
             daemon=True,
         )
         self.__process.start()
@@ -46,7 +50,7 @@ class Remote(upd.Client):
             aio.wait(self.__future)
         self.__pipe.send(payload)
         self.__future = self.__loop.create_future()
-        self.__get_action_response = self.__loop.create_task(
+        self.__request_response_awaiter = self.__loop.create_task(
             self.__get_action_response()
         )
         return self.__future
@@ -66,11 +70,12 @@ class _RemoteProcess:
     Manages the communication to the remote device and resolve request from the remote device
     """
 
-    def __init__(self, port, pipe):
+    def __init__(self, port, pipe, dispatcher, reply_key):
         """
         Open the serial port to the device
         """
         self.__pipe = pipe
+        self.__dispatcher = dispatcher
         self.__serial = sr.Serial(
             port=port,
             baudrate=115200,
@@ -79,6 +84,8 @@ class _RemoteProcess:
             stopbits=sr.STOPBITS_ONE,
             timeout=SERIAL_TIMEOUT_S,
         )
+
+        self.__dispatcher.replace(reply_key, lambda reply: self.__pipe.send(reply))
 
     def __call__(self):
         """
@@ -112,6 +119,6 @@ class _RemoteProcess:
         """
         while True:
             if self.__serial.in_waiting > 0:
-                self.__pipe.send(self.__serial.read(self.__serial.in_waiting))
+                self.__dispatcher.resolve(self.__serial.read(self.__serial.in_waiting))
 
             await aio.sleep(IO_REFRESH_DELAY_S)
