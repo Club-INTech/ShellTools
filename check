@@ -1,1 +1,1 @@
-venv/bin/python -m pytest --color=yes -s $@
+venv/bin/python -m pytest --color=yes -s $@ || exit 1

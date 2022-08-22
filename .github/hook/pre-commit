@@ -12,7 +12,7 @@ for FILE in ${STAGGED_FILES}; do
 done
 
 echo -e "\e[1;${COLOR}m-- GIT HOOK : run tests with pytest --\e[1;0m"
-./check
+./check || exit 1
 
 for FILE in ${STAGGED_FILES}; do
   git add $FILE

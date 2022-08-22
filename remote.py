@@ -16,7 +16,7 @@ import unpadded as upd
 from utility.match import Match
 
 IO_REFRESH_DELAY_S = 50e-3
-GET_ACTION_RESPONSE_DELAY_S = 1e-3
+RESPONSE_CHECK_DELAY_S = 1e-3
 SERIAL_TIMEOUT_S = 500e-3
 
 
@@ -33,7 +33,7 @@ class Remote(upd.Client):
         self.__pipe, remote_pipe = mp.Pipe()
         self.__dispatcher = dispatcher
         self.__loop = aio.get_event_loop()
-        self.__future = None
+        self.__active_request_uid, self.__next_request_uid = 0, 0
         self.__process = mp.Process(
             target=_RemoteProcess(
                 port=port, pipe=remote_pipe, dispatcher=dispatcher, reply_key=reply_key
@@ -45,25 +45,25 @@ class Remote(upd.Client):
     def new_request(self, payload):
         """
         Have the process send a new request
-        Only one request can be pending at a time. If the user try to send a request while one is already pending, the pending request is awaited first.
+        Each request is given an UID which is used to keep track of the order of creation. The newest request are resolved first by the remote device.
         """
-        if self.__future is not None:
-            aio.wait(self.__future)
         self.__pipe.send(payload)
-        self.__future = self.__loop.create_future()
-        self.__request_response_awaiter = self.__loop.create_task(
-            self.__get_action_response()
+        request_awaiter = self.__loop.create_task(
+            self.__get_response(self.__next_request_uid)
         )
-        return self.__future
+        self.__next_request_uid += 1
+        return request_awaiter
 
-    async def __get_action_response(self):
+    async def __get_response(self, uid):
         """
-        Wait asynchronously for the pending request to be fulfilled
-        This function is waiting for data to come from the process pipe.
+        Wait asynchronously for the pending request with the given UID to be resolved
+        The responses are received in the same order as the requests, so the coroutine wait for the other requests with lesser UID to be resolved first.
         """
-        while not self.__pipe.poll():
-            await aio.sleep(GET_ACTION_RESPONSE_DELAY_S)
-        self.__future.set_result(self.__pipe.recv())
+        while not (self.__active_request_uid == uid and self.__pipe.poll()):
+            await aio.sleep(RESPONSE_CHECK_DELAY_S)
+
+        self.__active_request_uid += 1
+        return self.__pipe.recv()
 
 
 class _RemoteProcess:
@@ -86,7 +86,10 @@ class _RemoteProcess:
             timeout=SERIAL_TIMEOUT_S,
         )
 
-        self.__dispatcher.replace(reply_key, lambda reply: self.__pipe.send(reply))
+        self.__response_received_condition = aio.Condition()
+        self.__dispatcher.replace(
+            reply_key, lambda reply: aio.create_task(self.__reply_callback(reply))
+        )
 
     def __call__(self):
         """
@@ -107,16 +110,20 @@ class _RemoteProcess:
     async def __handle_tx(self):
         """
         Transmit the packets received from the main process want to send to the remote device
+        It is assumed that the remote device can handle only one request at a time. Once a request is sent, the coroutine await for `__reply_callback` to be invoked (which occurs when the response has been received).
         """
         while True:
             if self.__pipe.poll():
                 self.__serial.write(self.__pipe.recv())
+                async with self.__response_received_condition:
+                    await self.__response_received_condition.wait()
 
             await aio.sleep(IO_REFRESH_DELAY_S)
 
     async def __handle_rx(self):
         """
         Receive the packets from the remote device and send them to the main process
+        It forwards the packet to the underlying dispatcher, but does not send back any response.
         """
         while True:
             if self.__serial.in_waiting > 0:
@@ -129,3 +136,12 @@ class _RemoteProcess:
                     )
 
             await aio.sleep(IO_REFRESH_DELAY_S)
+
+    async def __reply_callback(self, reply):
+        """
+        Callback invoked when received the remote device response
+        When called, `__handle_tx` is notified of the availability of the remote device.
+        """
+        self.__pipe.send(reply)
+        async with self.__response_received_condition:
+            self.__response_received_condition.notify_all()

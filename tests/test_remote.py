@@ -1,3 +1,4 @@
+import gc
 import os
 import random as rnd
 from pathlib import Path
@@ -74,3 +75,12 @@ async def test_request_an_action_through_remote(mock_serial):
     assert await remote.call(tem.double_i64, i64) == 2 * i64
     assert await remote.call(tem.identity_i64, max_int) == max_int
     assert await remote.call(tem.identity_i64, min_int) == min_int
+
+    awaitables = [
+        remote.call(tem.double_u8, u8),
+        remote.call(tem.double_u16, u16),
+        remote.call(tem.double_u32, u32),
+    ]
+    awaitables.reverse()
+    for (awaitable, value) in zip(awaitables, [u32, u16, u8]):
+        assert await awaitable == 2 * value
