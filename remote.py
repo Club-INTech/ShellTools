@@ -8,6 +8,7 @@ import time as tm
 from collections import deque
 from enum import Enum
 from random import randint
+from warnings import warn
 
 import serial as sr
 import unpadded as upd
@@ -119,6 +120,12 @@ class _RemoteProcess:
         """
         while True:
             if self.__serial.in_waiting > 0:
-                self.__dispatcher.resolve(self.__serial.read(self.__serial.in_waiting))
+                result = self.__dispatcher.resolve(
+                    self.__serial.read(self.__serial.in_waiting)
+                )
+                if result != b"":
+                    warn(
+                        f"Action request from remote device would return non-empty response ({result}) which is not supported. The result will be discarded."
+                    )
 
             await aio.sleep(IO_REFRESH_DELAY_S)
