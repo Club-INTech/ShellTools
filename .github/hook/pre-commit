@@ -3,13 +3,15 @@
 COLOR=96
 STAGGED_FILES=$(git diff --cached --name-only)
 
-echo -e "\e[1;${COLOR}m-- GIT HOOK : format source files with Black and isort --\e[1;0m"
+echo -e "\e[1;${COLOR}m-- GIT HOOK : format source files with Black --\e[1;0m"
 for FILE in ${STAGGED_FILES}; do
   if [ -f "$FILE" ] && [[ $FILE == *.py ]]; then
-    isort $FILE
     black $FILE
   fi
 done
+
+echo -e "\e[1;${COLOR}m-- GIT HOOK : check inclusions with isort --\e[1;0m"
+isort .
 
 echo -e "\e[1;${COLOR}m-- GIT HOOK : run tests with pytest --\e[1;0m"
 ./check || exit 1
