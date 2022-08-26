@@ -1,7 +1,5 @@
 import gc
-import os
 import random as rnd
-from pathlib import Path
 
 import pytest
 import unpadded as upd

@@ -4,10 +4,6 @@ Remote communication interface
 
 import asyncio as aio
 import multiprocessing as mp
-import time as tm
-from collections import deque
-from enum import Enum
-from random import randint
 from warnings import warn
 
 import serial as sr
