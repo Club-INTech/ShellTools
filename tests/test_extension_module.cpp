@@ -1,5 +1,9 @@
 // cppimport
 
+#include <array>
+
+#define PYBIND11_DETAILED_ERROR_MESSAGES
+
 #include <upd/python.hpp>
 #include <upd/keyring.hpp>
 
@@ -12,7 +16,8 @@ std::int32_t double_i32(std::int32_t);
 std::int64_t double_i64(std::int64_t);
 std::int64_t identity_i64(std::int64_t);
 
-inline void reply(std::int64_t) {}
+inline void reply(const std::array<upd::byte_t, 32> &) {}
+inline void do_something(std::uint32_t) {}
 
 upd::keyring keyring{upd::flist<
     double_u8,
@@ -24,7 +29,7 @@ upd::keyring keyring{upd::flist<
     double_i64,
     identity_i64>,
   upd::little_endian, upd::two_complement};
-upd::keyring dispatcher_keyring{upd::flist<reply>, upd::little_endian, upd::two_complement};
+upd::keyring dispatcher_keyring{upd::flist<reply, do_something>, upd::little_endian, upd::two_complement};
 
 PYBIND11_MODULE(test_extension_module, pymodule) {
   upd::py::unpack_keyring(pymodule, keyring);

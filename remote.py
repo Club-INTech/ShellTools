@@ -123,12 +123,12 @@ class _RemoteProcess:
         """
         while True:
             if self.__serial.in_waiting > 0:
-                result = self.__dispatcher.resolve(
+                results = self.__dispatcher.resolve_completely(
                     self.__serial.read(self.__serial.in_waiting)
                 )
-                if result != b"":
+                if any(map(lambda result: result != b"", results)):
                     warn(
-                        f"Action request from remote device would return non-empty response ({result}) which is not supported. The result will be discarded."
+                        f"Action request from remote device would return non-empty responses ({results}) which is not supported. Those results will be discarded."
                     )
 
             await aio.sleep(IO_REFRESH_DELAY_S)
@@ -138,6 +138,6 @@ class _RemoteProcess:
         Callback invoked when received the remote device response
         When called, `__handle_tx` is notified of the availability of the remote device.
         """
-        self.__pipe.send(reply)
+        self.__pipe.send(bytes(reply))
         async with self.__response_received_condition:
             self.__response_received_condition.notify_all()

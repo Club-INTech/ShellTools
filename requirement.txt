@@ -1,6 +1,7 @@
 pyserial
 pytest
 pytest-asyncio
+pytest-timeout
 cppimport
 mock-serial
 
