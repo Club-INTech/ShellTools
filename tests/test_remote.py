@@ -106,3 +106,26 @@ async def test_handle_request_to_and_from_device_simulatneously(mock_serial):
 
     assert await remote.call(tem.double_u32, arg_to) == 2 * arg_to
     assert witness.value == arg_from
+
+
+@pytest.mark.asyncio
+async def test_progagate_exception_back_to_main_thread(mock_serial):
+    remote = Remote(
+        port=mock_serial.port, dispatcher=tem.Dispatcher(), reply_key=tem.reply
+    )
+
+    mock_serial.stub(
+        receive_bytes=b"\x00\x00",
+        send_bytes=b"\xff",
+    )
+
+    request = remote.call(tem.double_u16, 0x00)
+
+    with pytest.raises(ValueError):
+        await remote.call(tem.double_u8, 0x00)
+
+    with pytest.raises(ValueError):
+        await request
+
+    with pytest.raises(ValueError):
+        await remote.call(tem.double_u16, 0x00)

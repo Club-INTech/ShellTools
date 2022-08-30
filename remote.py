@@ -30,6 +30,7 @@ class Remote(upd.Client):
         self.__dispatcher = dispatcher
         self.__loop = aio.get_event_loop()
         self.__active_request_uid, self.__next_request_uid = 0, 0
+        self.__exception = None
         self.__process = mp.Process(
             target=_RemoteProcess(
                 port=port, pipe=remote_pipe, dispatcher=dispatcher, reply_key=reply_key
@@ -54,12 +55,25 @@ class Remote(upd.Client):
         """
         Wait asynchronously for the pending request with the given UID to be resolved
         The responses are received in the same order as the requests, so the coroutine wait for the other requests with lesser UID to be resolved first.
+        If the process send an exception through the pipe, then every current and future pending request raise this exception when awaited.
         """
-        while not (self.__active_request_uid == uid and self.__pipe.poll()):
+        while not (
+            self.__active_request_uid == uid
+            and self.__pipe.poll()
+            or self.__exception is not None
+        ):
             await aio.sleep(RESPONSE_CHECK_DELAY_S)
-
         self.__active_request_uid += 1
-        return self.__pipe.recv()
+
+        if self.__exception is not None:
+            raise self.__exception
+
+        result = self.__pipe.recv()
+        if isinstance(result, Exception):
+            self.__exception = result
+            raise self.__exception
+        else:
+            return result
 
 
 class _RemoteProcess:
@@ -96,12 +110,19 @@ class _RemoteProcess:
     async def __start(self):
         """
         Receive request from the remote device and handle command from the control pipe
+        This coroutine start two other coroutines (`__handle_tx` and `__handle_rx`) which can only finish when an exception is raised by either or both of them. When it happens, those exceptions are sent to main process through the pipe and any coroutine that did not throw is cancelled, then the `__start` coroutine finishes.
         """
         loop = aio.get_event_loop()
-        handle_tx = loop.create_task(self.__handle_tx())
-        handle_rx = loop.create_task(self.__handle_rx())
-        await handle_tx
-        await handle_rx
+        handle_tx, handle_rx = loop.create_task(self.__handle_tx()), loop.create_task(
+            self.__handle_rx()
+        )
+        done, pending = await aio.wait(
+            [handle_tx, handle_rx], return_when=aio.FIRST_EXCEPTION
+        )
+        for coro in done:
+            self.__pipe.send(coro.exception())
+        for coro in pending:
+            coro.cancel()
 
     async def __handle_tx(self):
         """
