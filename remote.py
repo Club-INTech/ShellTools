@@ -15,6 +15,8 @@ IO_REFRESH_DELAY_S = 50e-3
 RESPONSE_CHECK_DELAY_S = 1e-3
 SERIAL_TIMEOUT_S = 500e-3
 
+HEADER = b"\xff\xff\xff\xff"
+
 
 class Remote(upd.Client):
     """
@@ -131,7 +133,7 @@ class _RemoteProcess:
         """
         while True:
             if self.__pipe.poll():
-                self.__serial.write(self.__pipe.recv())
+                self.__serial.write(HEADER + self.__pipe.recv())
                 async with self.__response_received_condition:
                     await self.__response_received_condition.wait()
 
@@ -142,14 +144,34 @@ class _RemoteProcess:
         Receive the packets from the remote device and send them to the main process
         It forwards the packet to the underlying dispatcher, but does not send back any response.
         """
-        while True:
-            if self.__serial.in_waiting > 0:
-                results = self.__dispatcher.resolve_completely(
-                    self.__serial.read(self.__serial.in_waiting)
+
+        header_sentinel = len(HEADER)
+
+        def raise_corrupted_packet():
+            raise RuntimeError(
+                "A corrupted packet has been received. Process will stop."
+            )
+
+        def check_unloaded_dispatcher():
+            nonlocal header_sentinel
+            header_sentinel = len(HEADER)
+            if not self.__dispatcher.is_loaded():
+                warn(
+                    f"Action request from remote device would return a non-empty response which is not supported. That result will be ignored."
                 )
-                if any(map(lambda result: result != b"", results)):
-                    warn(
-                        f"Action request from remote device would return non-empty responses ({results}) which is not supported. Those results will be discarded."
+
+        while True:
+            while self.__serial.in_waiting > 0:
+                x = self.__serial.read(1)
+                if header_sentinel == 0:
+                    Match(self.__dispatcher.put(int.from_bytes(x, "little"))) & {
+                        upd.PacketStatus.DROPPED_PACKET: raise_corrupted_packet,
+                        upd.PacketStatus.RESOLVED_PACKET: check_unloaded_dispatcher,
+                        upd.PacketStatus.LOADING_PACKET: lambda: None,
+                    }
+                else:
+                    header_sentinel = (
+                        header_sentinel - 1 if x == HEADER[:1] else len(HEADER)
                     )
 
             await aio.sleep(IO_REFRESH_DELAY_S)

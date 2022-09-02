@@ -7,6 +7,7 @@ import unpadded as upd
 from mock_serial.pytest import *
 
 from remote import *
+from remote import HEADER
 
 pytest_plugins = ("pytest_asyncio",)
 
@@ -27,40 +28,40 @@ async def test_request_an_action_through_remote(mock_serial):
     max_int, min_int = 2**63 - 1, -(2**63)
 
     mock_serial.stub(
-        receive_bytes=b"\x00" + u8.to_bytes(1, "little"),
-        send_bytes=b"\x00" + (2 * u8).to_bytes(32, "little"),
+        receive_bytes=HEADER + b"\x00" + u8.to_bytes(1, "little"),
+        send_bytes=HEADER + b"\x00" + (2 * u8).to_bytes(32, "little"),
     )
     mock_serial.stub(
-        receive_bytes=b"\x01" + u16.to_bytes(2, "little"),
-        send_bytes=b"\x00" + (2 * u16).to_bytes(32, "little"),
+        receive_bytes=HEADER + b"\x01" + u16.to_bytes(2, "little"),
+        send_bytes=HEADER + b"\x00" + (2 * u16).to_bytes(32, "little"),
     )
     mock_serial.stub(
-        receive_bytes=b"\x02" + u32.to_bytes(4, "little"),
-        send_bytes=b"\x00" + (2 * u32).to_bytes(32, "little"),
+        receive_bytes=HEADER + b"\x02" + u32.to_bytes(4, "little"),
+        send_bytes=HEADER + b"\x00" + (2 * u32).to_bytes(32, "little"),
     )
     mock_serial.stub(
-        receive_bytes=b"\x03" + i8.to_bytes(1, "little", signed=True),
-        send_bytes=b"\x00" + (2 * i8).to_bytes(32, "little", signed=True),
+        receive_bytes=HEADER + b"\x03" + i8.to_bytes(1, "little", signed=True),
+        send_bytes=HEADER + b"\x00" + (2 * i8).to_bytes(32, "little", signed=True),
     )
     mock_serial.stub(
-        receive_bytes=b"\x04" + i16.to_bytes(2, "little", signed=True),
-        send_bytes=b"\x00" + (2 * i16).to_bytes(32, "little", signed=True),
+        receive_bytes=HEADER + b"\x04" + i16.to_bytes(2, "little", signed=True),
+        send_bytes=HEADER + b"\x00" + (2 * i16).to_bytes(32, "little", signed=True),
     )
     mock_serial.stub(
-        receive_bytes=b"\x05" + i32.to_bytes(4, "little", signed=True),
-        send_bytes=b"\x00" + (2 * i32).to_bytes(32, "little", signed=True),
+        receive_bytes=HEADER + b"\x05" + i32.to_bytes(4, "little", signed=True),
+        send_bytes=HEADER + b"\x00" + (2 * i32).to_bytes(32, "little", signed=True),
     )
     mock_serial.stub(
-        receive_bytes=b"\x06" + i64.to_bytes(8, "little", signed=True),
-        send_bytes=b"\x00" + (2 * i64).to_bytes(32, "little", signed=True),
+        receive_bytes=HEADER + b"\x06" + i64.to_bytes(8, "little", signed=True),
+        send_bytes=HEADER + b"\x00" + (2 * i64).to_bytes(32, "little", signed=True),
     )
     mock_serial.stub(
-        receive_bytes=b"\x07" + max_int.to_bytes(8, "little", signed=True),
-        send_bytes=b"\x00" + max_int.to_bytes(32, "little", signed=True),
+        receive_bytes=HEADER + b"\x07" + max_int.to_bytes(8, "little", signed=True),
+        send_bytes=HEADER + b"\x00" + max_int.to_bytes(32, "little", signed=True),
     )
     mock_serial.stub(
-        receive_bytes=b"\x07" + min_int.to_bytes(8, "little", signed=True),
-        send_bytes=b"\x00" + min_int.to_bytes(32, "little", signed=True),
+        receive_bytes=HEADER + b"\x07" + min_int.to_bytes(8, "little", signed=True),
+        send_bytes=HEADER + b"\x00" + min_int.to_bytes(32, "little", signed=True),
     )
 
     assert await remote.call(tem.double_u8, u8) == 2 * u8
@@ -93,9 +94,11 @@ async def test_handle_request_to_and_from_device_simulatneously(mock_serial):
         witness.value = x
 
     mock_serial.stub(
-        receive_bytes=b"\x02" + arg_to.to_bytes(4, "little"),
-        send_bytes=b"\x01"
+        receive_bytes=HEADER + b"\x02" + arg_to.to_bytes(4, "little"),
+        send_bytes=HEADER
+        + b"\x01"
         + arg_from.to_bytes(4, "little")
+        + HEADER
         + b"\x00"
         + (2 * arg_to).to_bytes(32, "little"),
     )
@@ -115,17 +118,17 @@ async def test_progagate_exception_back_to_main_thread(mock_serial):
     )
 
     mock_serial.stub(
-        receive_bytes=b"\x00\x00",
-        send_bytes=b"\xff",
+        receive_bytes=HEADER + b"\x00\x00",
+        send_bytes=HEADER + b"\xff",
     )
 
     request = remote.call(tem.double_u16, 0x00)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(RuntimeError):
         await remote.call(tem.double_u8, 0x00)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(RuntimeError):
         await request
 
-    with pytest.raises(ValueError):
+    with pytest.raises(RuntimeError):
         await remote.call(tem.double_u16, 0x00)
