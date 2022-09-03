@@ -19,10 +19,8 @@ from termios import TCIFLUSH, tcflush
 
 import colorama
 import controller_rpc as rpc
-import matplotlib.pyplot as plt
-import numpy as np
 from colorama import Fore, Style
-from keyboard import block_key, is_pressed, send, unhook_all
+from keyboard import is_pressed
 
 import remote
 import tracker as trk
@@ -770,7 +768,7 @@ class Parser(argparse.ArgumentParser):
         self._shell._out.write(Fore.RED + Style.BRIGHT)
         try:
             return super().parse_args(line.split())
-        except SystemExit as e:
+        except SystemExit:
             raise ShellException()
         finally:
             self._shell._out.write(Style.RESET_ALL)

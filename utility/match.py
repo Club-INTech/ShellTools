@@ -57,9 +57,8 @@ def _match_pattern(patterns, value):
         else:
             return object_by_type
 
-    value_repr = "<value.__repr__() raised an exception>"
     try:
-        value_repr = repr(value)
+        repr(value)
     except:
         pass
 

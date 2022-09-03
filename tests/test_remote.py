@@ -3,7 +3,6 @@ from multiprocessing import Value
 
 import pytest
 import test_extension_module as tem
-import unpadded as upd
 from mock_serial.pytest import *
 
 from remote import *

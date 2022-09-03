@@ -9,7 +9,6 @@ from enum import Enum
 
 import controller_rpc as rpc
 import matplotlib.pyplot as plt
-import matplotlib.transforms as tsf
 import numpy as np
 
 from utility.match import Match
@@ -63,7 +62,7 @@ class Tracker:
         self._process.join()
 
     def get_status(self):
-        timestamp = tm.time()
+        tm.time()
         while self.pipe.poll():
             self._status = self.pipe.recv()
         return self._status
