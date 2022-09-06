@@ -4,9 +4,10 @@ Shell interface
 
 import asyncio as aio
 import cmd
+from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Coroutine
 from sys import stdin, stdout
-from typing import Any, TextIO
+from typing import Any, TextIO, TypeVar
 
 
 class Shell(cmd.Cmd):
@@ -87,6 +88,9 @@ class Shell(cmd.Cmd):
             self.__ostream.write("Press ENTER to quit.\n")
 
 
+ShellType = TypeVar("ShellType", bound=Shell)
+
+
 class ShellError(Exception):
     """
     Used to signal a recoverable error to the shell
@@ -97,9 +101,61 @@ class ShellError(Exception):
         super().__init__(message)
 
 
-def command(f: Callable[[Shell, str], Any]) -> Callable[[Shell, str], bool]:
+def command(f: Callable[[ShellType, str], Any]) -> Callable[[ShellType, str], bool]:
     """
     Make a command compatible with the underlying `cmd.Cmd` class
     It should only be used on methods of a class derived from `Shell` whose identifiers begin with 'do_'.
     """
     return lambda self, line: self.create_task(f(self, line))
+
+
+def argument(*args, **kwargs) -> Callable[[Callable], Callable]:
+    """
+    Provide an argument specification
+    This decorator behaves like the `ArgumentParser.add_argument` method. However, the result from the call of `ArgumentParser.parse_args` is unpacked to the command.
+    """
+
+    def impl(f):
+        if type(f) is not _Wrapper:
+            f = _Wrapper(f)
+
+        f.parser.add_argument(*args, **kwargs)
+        return f
+
+    return impl
+
+
+class _Wrapper:
+    def __init__(self, f: Callable):
+        """
+        Hold a callable which will received the CLI arguments
+        """
+        self.__f = f
+        self.parser = _Parser(prog=f.__name__)
+
+    async def __call__(self, shell: Shell, line: str) -> None:
+        """
+        Forward the accumulated CLI argument to the held callable
+        """
+        await self.__f(shell, **vars(self.parser.parse(line)))
+
+
+class _Parser(ArgumentParser):
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the underlying parser
+        """
+        super().__init__(
+            *args,
+            **kwargs,
+        )
+
+    def parse(self, line: str) -> Namespace:
+        """
+        Parse the argument from a command line
+        Instead of exiting the program, this method will raise a `ShellError()` if the parsing fails.
+        """
+        try:
+            return self.parse_args(line.split())
+        except SystemExit:
+            raise ShellError()
