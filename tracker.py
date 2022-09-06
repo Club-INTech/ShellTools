@@ -5,8 +5,12 @@ Encoder state tracking
 import asyncio as aio
 import multiprocessing as mp
 from enum import IntEnum
+from typing import List
 
+import unpadded as upd
 from pandas import DataFrame
+
+from annotation import KeyLike
 
 WRITE_MEASURE_REFRESH_DELAY_S = 1e-3
 
@@ -21,7 +25,7 @@ class Command(IntEnum):
 
 
 class Tracker:
-    def __init__(self, client, control_key, report_key):
+    def __init__(self, client: upd.Client, control_key: KeyLike, report_key: KeyLike):
         """
         Initialize the report callback in `client`
         """
@@ -29,18 +33,18 @@ class Tracker:
         self.__client = client
         self.__control_key = control_key
         self.__report_key = report_key
-        self.__queue = mp.Queue()
+        self.__queue: mp.Queue = mp.Queue()
 
         client.replace(report_key, self.__append_to_queue)
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> None:
         """
         Tell the remote device to start reporting and start the tasks
         """
 
-        self.__timestamps = []
-        self.__left_measures = []
-        self.__right_measures = []
+        self.__timestamps: List[int] = []
+        self.__left_measures: List[int] = []
+        self.__right_measures: List[int] = []
         self.__tasks = [aio.Task(self.__write_measure())]
         await self.__client.call(self.__control_key, Command.START)
 
@@ -48,6 +52,7 @@ class Tracker:
         """
         Tell the remote device to stop reporting, cancel all tasks and erase all measures
         """
+        return 0
 
         await self.__client.call(self.__control_key, Command.STOP)
         for task in self.__tasks:
@@ -56,7 +61,7 @@ class Tracker:
         self.__left_measures = None
         self.__right_measures = None
 
-    async def timeout(self, delay):
+    async def timeout(self, delay: int) -> DataFrame:
         """
         Wait until no data has been received for at least `timeout` seconds and return all data that have been received so far
         """
@@ -67,14 +72,14 @@ class Tracker:
 
         return self.__make_data_frame()
 
-    def __append_to_queue(self, timestamp, left, right):
+    def __append_to_queue(self, timestamp: int, left: int, right: int) -> DataFrame:
         """
         Forward a measure to the main process
         """
 
         self.__queue.put_nowait((timestamp, left, right))
 
-    def __make_data_frame(self):
+    def __make_data_frame(self) -> DataFrame:
         """
         Make a `DataFrame` out of all measures reported so far
         """
@@ -88,7 +93,7 @@ class Tracker:
         )
         return df.sort_values("timestamp").reset_index(drop=True)
 
-    async def __write_measure(self):
+    async def __write_measure(self) -> None:
         """
         Append any measure received from the dispatcher process
         """

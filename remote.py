@@ -4,11 +4,14 @@ Remote communication interface
 
 import asyncio as aio
 import multiprocessing as mp
+import multiprocessing.connection
+from typing import Any, Optional
 from warnings import warn
 
 import serial as sr
 import unpadded as upd
 
+from annotation import DispatcherLike, KeyLike
 from utility.match import Match
 
 IO_REFRESH_DELAY_S = 50e-3
@@ -23,7 +26,7 @@ class Remote(upd.Client):
     Handles a serial communication stream with a remote device
     """
 
-    def __init__(self, port, dispatcher, reply_key):
+    def __init__(self, port: str, dispatcher: DispatcherLike, reply_key: KeyLike):
         """
         Start listening to a serial port and hold a pipe to a tracker process
         """
@@ -32,7 +35,7 @@ class Remote(upd.Client):
         self.__dispatcher = dispatcher
         self.__loop = aio.get_event_loop()
         self.__active_request_uid, self.__next_request_uid = 0, 0
-        self.__exception = None
+        self.__exception: Optional[Exception] = None
         self.__process = mp.Process(
             target=_RemoteProcess(
                 port=port, pipe=remote_pipe, dispatcher=dispatcher, reply_key=reply_key
@@ -41,7 +44,7 @@ class Remote(upd.Client):
         )
         self.__process.start()
 
-    def new_request(self, payload):
+    def new_request(self, payload: bytes) -> aio.Task:
         """
         Have the process send a new request
         Each request is given an UID which is used to keep track of the order of creation. The newest request are resolved first by the remote device.
@@ -53,7 +56,7 @@ class Remote(upd.Client):
         self.__next_request_uid += 1
         return request_awaiter
 
-    async def __get_response(self, uid):
+    async def __get_response(self, uid: int) -> Any:
         """
         Wait asynchronously for the pending request with the given UID to be resolved
         The responses are received in the same order as the requests, so the coroutine wait for the other requests with lesser UID to be resolved first.
@@ -83,7 +86,13 @@ class _RemoteProcess:
     Manages the communication to the remote device and resolve request from the remote device
     """
 
-    def __init__(self, port, pipe, dispatcher, reply_key):
+    def __init__(
+        self,
+        port: str,
+        pipe: mp.connection.Connection,
+        dispatcher: DispatcherLike,
+        reply_key: KeyLike,
+    ):
         """
         Open the serial port to the device
         """
@@ -103,13 +112,13 @@ class _RemoteProcess:
             reply_key, lambda reply: aio.create_task(self.__reply_callback(reply))
         )
 
-    def __call__(self):
+    def __call__(self) -> None:
         """
         Start the listening of the remote device
         """
         aio.run(self.__start())
 
-    async def __start(self):
+    async def __start(self) -> None:
         """
         Receive request from the remote device and handle command from the control pipe
         This coroutine start two other coroutines (`__handle_tx` and `__handle_rx`) which can only finish when an exception is raised by either or both of them. When it happens, those exceptions are sent to main process through the pipe and any coroutine that did not throw is cancelled, then the `__start` coroutine finishes.
@@ -126,7 +135,7 @@ class _RemoteProcess:
         for coro in pending:
             coro.cancel()
 
-    async def __handle_tx(self):
+    async def __handle_tx(self) -> None:
         """
         Transmit the packets received from the main process want to send to the remote device
         It is assumed that the remote device can handle only one request at a time. Once a request is sent, the coroutine await for `__reply_callback` to be invoked (which occurs when the response has been received).
@@ -139,7 +148,7 @@ class _RemoteProcess:
 
             await aio.sleep(IO_REFRESH_DELAY_S)
 
-    async def __handle_rx(self):
+    async def __handle_rx(self) -> None:
         """
         Receive the packets from the remote device and send them to the main process
         It forwards the packet to the underlying dispatcher, but does not send back any response.
@@ -176,7 +185,7 @@ class _RemoteProcess:
 
             await aio.sleep(IO_REFRESH_DELAY_S)
 
-    async def __reply_callback(self, reply):
+    async def __reply_callback(self, reply: bytes) -> None:
         """
         Callback invoked when received the remote device response
         When called, `__handle_tx` is notified of the availability of the remote device.
