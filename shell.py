@@ -93,14 +93,17 @@ class Shell(cmd.Cmd):
         Print the given message to the output stream
         A new line is inserted after the message.
         """
-        self.__ostream.acquire()
+        line_eraser = "\r" + " " * os.get_terminal_size().columns + "\r"
 
-        if self.__use_rawinput:
-            self.__ostream.write_raw("\r" + " " * os.get_terminal_size().columns + "\r")
+        self.__ostream.acquire()
 
         if modifier and self.__use_rawinput:
             msg = modifier(msg)
-        self.__ostream.write_raw(msg + "\n")
+
+        if self.__use_rawinput:
+            self.__ostream.write_raw(line_eraser + msg + "\n")
+        else:
+            self.__ostream.write_raw(msg + "\n")
 
         if self.__use_rawinput:
             rle.forced_update_display()
@@ -134,11 +137,11 @@ class Shell(cmd.Cmd):
             if e is not None:
                 raise e
         except ShellError as e:
-            self.__ostream.write(str(e) + "\n")
+            self.log_error(str(e))
         except Exception as e:
             self.__continue = False
-            self.log_error(f"An unrecoverable error has occured : {e}\n")
-            self.log_status("Press ENTER to quit.\n")
+            self.log_error(f"An unrecoverable error has occured : {e}")
+            self.log_status("Press ENTER to quit.")
 
 
 ShellType = TypeVar("ShellType", bound=Shell)

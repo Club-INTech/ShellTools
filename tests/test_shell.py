@@ -23,6 +23,11 @@ class MockShell(Shell):
 
     @command
     async def do_alert(self, _):
+        for i in range(3):
+            self.log("alert")
+
+    @command
+    async def do_big_alert(self, _):
         for i in range(100):
             self.log("alert")
 
@@ -37,6 +42,10 @@ class MockShell(Shell):
     @command
     async def do_panic(self, _):
         raise Exception("I panicked")
+
+    @command
+    async def do_error(self, _):
+        raise ShellError("Oops")
 
 
 @pytest.fixture
@@ -78,7 +87,7 @@ async def test_run_command_with_argument(mock_shell, mock_stdin, mock_stdout):
 
 @pytest.mark.asyncio
 async def test_print_to_stdout(mock_shell, mock_stdin, mock_stdout):
-    mock_stdin.write("alert\nEOF\n")
+    mock_stdin.write("big_alert\nEOF\n")
     mock_stdin.seek(0)
     await mock_shell.run()
 
