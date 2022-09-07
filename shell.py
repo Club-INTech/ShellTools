@@ -4,25 +4,45 @@ Shell interface
 
 import asyncio as aio
 import cmd
+import os
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Coroutine
 from sys import stdin, stdout
 from typing import Any, TextIO, TypeVar
 
+from _synchronized_output import _SynchronizedOStream
+
+from .utility import readline_extension as rle  # type: ignore
+
+DEFAULT_PROMPT = "[shell] > "
+
 
 class Shell(cmd.Cmd):
-    def __init__(self, istream: TextIO = stdin, ostream: TextIO = stdout):
+    def __init__(
+        self,
+        prompt: str = DEFAULT_PROMPT,
+        istream: TextIO = stdin,
+        ostream: TextIO = stdout,
+    ):
         """
         Initialize the base class with IO streams
-        `use_rawinput` will be set to `True` if and only if `istream` is `sys.stdin`.
+        `use_rawinput` will be set to `True` if and only if `istream` is `sys.stdin` and `ostream` is `sys.stdout`.
         """
 
         self.__istream = istream
-        self.__ostream = ostream
+        self.__ostream = _SynchronizedOStream(ostream)
+        self.__prompt = prompt
 
-        self.__use_rawinput = istream is stdin
+        self.__use_rawinput = istream is stdin and ostream is stdout
 
-        super().__init__(stdin=istream, stdout=ostream)
+        super().__init__(stdin=istream, stdout=self.__ostream)
+
+    @property
+    def prompt(self):
+        """
+        Shadows the `prompt` class attribute to make it instance-bound.
+        """
+        return "\r" + self.__prompt if self.__use_rawinput else ""
 
     @property
     def use_rawinput(self):
@@ -62,6 +82,23 @@ class Shell(cmd.Cmd):
             return True
         self.__loop.call_soon_threadsafe(self.__create_task, coro)
         return False
+
+    def log(self, msg: str = "") -> None:
+        """
+        Print the given message to the output stream
+        A new line is inserted after the message.
+        """
+        self.__ostream.acquire()
+
+        if self.__use_rawinput:
+            self.__ostream.write_raw("\r" + " " * os.get_terminal_size().columns + "\r")
+
+        self.__ostream.write_raw(msg + "\n")
+
+        if self.__use_rawinput:
+            rle.forced_update_display()
+
+        self.__ostream.release()
 
     def __create_task(self, coro: Coroutine):
         """

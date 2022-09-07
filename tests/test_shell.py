@@ -1,3 +1,4 @@
+import asyncio as aio
 import random as rnd
 from io import StringIO
 
@@ -20,6 +21,20 @@ class MockShell(Shell):
     async def do_increment_by(self, n):
         self.x += n
 
+    @command
+    async def do_alert(self, _):
+        self.log("alert")
+        self.log("alert")
+        self.log("alert")
+
+    @command
+    async def do_timmed_alert(self, _):
+        self.log("alert1")
+        await aio.sleep(1)
+        self.log("alert2")
+        await aio.sleep(1)
+        self.log("alert3")
+
 
 @pytest.fixture
 def mock_stdin():
@@ -33,7 +48,7 @@ def mock_stdout():
 
 @pytest.fixture
 def mock_shell(mock_stdin, mock_stdout):
-    return MockShell(istream=mock_stdin, ostream=mock_stdout)
+    return MockShell(prompt="PROMPT-", istream=mock_stdin, ostream=mock_stdout)
 
 
 @pytest.mark.asyncio
@@ -56,3 +71,12 @@ async def test_run_command_with_argument(mock_shell, mock_stdin, mock_stdout):
     await mock_shell.run()
 
     assert mock_shell.x == n + 5
+
+
+@pytest.mark.asyncio
+async def test_print_to_stdout(mock_shell, mock_stdin, mock_stdout):
+    mock_stdin.write("alert\nEOF\n")
+    mock_stdin.seek(0)
+    await mock_shell.run()
+
+    assert mock_stdout.getvalue() == "alert\nalert\nalert\n"
