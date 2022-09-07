@@ -8,7 +8,7 @@ import os
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Coroutine
 from sys import stdin, stdout
-from typing import Optional, TextIO, TypeVar
+from typing import NoReturn, Optional, TextIO, TypeVar
 
 import terminology as tmg
 
@@ -160,6 +160,14 @@ class ShellError(Exception):
         super().__init__(message)
 
 
+class ShellQuietParseError(ShellError):
+    """
+    Meant to be silenced by a `_Wrapper`
+    It indicated that a command line could not be parsed, but the `_Parser` already output the error to the output stream.
+    """
+
+
+
 class _Wrapper:
     def __init__(self, f: Callable):
         """
@@ -172,7 +180,10 @@ class _Wrapper:
         """
         Forward the accumulated CLI argument to the held callable
         """
-        await self.__f(shell, **vars(self.parser.parse(line)))
+        try:
+            await self.__f(shell, **vars(self.parser.parse(shell, line)))
+        except ShellQuietParseError:
+            pass
 
 
 def command(f: Callable[..., Coroutine] | _Wrapper) -> Callable[[ShellType, str], bool]:
@@ -217,12 +228,37 @@ class _Parser(ArgumentParser):
             **kwargs,
         )
 
-    def parse(self, line: str) -> Namespace:
+    def parse(self, shell: Shell, line: str) -> Namespace:
         """
         Parse the argument from a command line
         Instead of exiting the program, this method will raise a `ShellError()` if the parsing fails.
         """
-        try:
-            return self.parse_args(line.split())
-        except SystemExit:
-            raise ShellError()
+        self.__shell = shell
+        return self.parse_args(line.split())
+
+    def print_usage(self, _=None) -> None:
+        """
+        Print the usage string to the output stream of the shell
+        """
+        self.__shell.log_error(self.format_usage().strip())
+
+    def print_help(self, _=None) -> None:
+        """
+        Print the help string to the output stream of the shell
+        """
+        self.__shell.log_help(self.format_help())
+
+    def error(self, msg: str) -> NoReturn:
+        """
+        Print the usage and the reason of the parsing failure
+        """
+        self.print_usage()
+        self.__shell.log_error(msg)
+        raise ShellQuietParseError()
+
+    def _print_message(self, message: str, _=None) -> None:
+        """
+        Print to the output stream
+        It overrides the method of the base class so it does not write to the standard error.
+        """
+        self.__shell.log(message)
