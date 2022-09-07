@@ -13,7 +13,7 @@ class MockShell(Shell):
         super().__init__(*args, **kwargs)
 
     @command
-    async def do_increment(self, _: str):
+    async def do_increment(self):
         self.x += 1
 
     @command
@@ -22,17 +22,17 @@ class MockShell(Shell):
         self.x += n
 
     @command
-    async def do_alert(self, _):
+    async def do_alert(self):
         for i in range(3):
             self.log("alert")
 
     @command
-    async def do_big_alert(self, _):
+    async def do_big_alert(self):
         for i in range(100):
             self.log("alert")
 
     @command
-    async def do_timmed_alert(self, _):
+    async def do_timmed_alert(self):
         self.log("alert1")
         await aio.sleep(1)
         self.log("alert2")
@@ -40,11 +40,11 @@ class MockShell(Shell):
         self.log("alert3")
 
     @command
-    async def do_panic(self, _):
+    async def do_panic(self):
         raise Exception("I panicked")
 
     @command
-    async def do_error(self, _):
+    async def do_error(self):
         raise ShellError("Oops")
 
 
@@ -92,3 +92,15 @@ async def test_print_to_stdout(mock_shell, mock_stdin, mock_stdout):
     await mock_shell.run()
 
     assert mock_stdout.getvalue() == "alert\n" * 100 + "Exiting the shell...\n"
+
+
+@pytest.mark.asyncio
+async def test_(mock_shell, mock_stdin, mock_stdout):
+    mock_stdin.write("increment 5\nEOF\n")
+    mock_stdin.seek(0)
+    n = rnd.randint(0, 100)
+    mock_shell.x = n
+
+    await mock_shell.run()
+
+    assert mock_shell.x == n

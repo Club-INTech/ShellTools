@@ -8,7 +8,7 @@ import os
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Coroutine
 from sys import stdin, stdout
-from typing import Any, Optional, TextIO, TypeVar
+from typing import Optional, TextIO, TypeVar
 
 import terminology as tmg
 
@@ -160,30 +160,6 @@ class ShellError(Exception):
         super().__init__(message)
 
 
-def command(f: Callable[[ShellType, str], Any]) -> Callable[[ShellType, str], bool]:
-    """
-    Make a command compatible with the underlying `cmd.Cmd` class
-    It should only be used on methods of a class derived from `Shell` whose identifiers begin with 'do_'.
-    """
-    return lambda self, line: self.create_task(f(self, line))
-
-
-def argument(*args, **kwargs) -> Callable[[Callable], Callable]:
-    """
-    Provide an argument specification
-    This decorator behaves like the `ArgumentParser.add_argument` method. However, the result from the call of `ArgumentParser.parse_args` is unpacked to the command.
-    """
-
-    def impl(f):
-        if type(f) is not _Wrapper:
-            f = _Wrapper(f)
-
-        f.parser.add_argument(*args, **kwargs)
-        return f
-
-    return impl
-
-
 class _Wrapper:
     def __init__(self, f: Callable):
         """
@@ -197,6 +173,38 @@ class _Wrapper:
         Forward the accumulated CLI argument to the held callable
         """
         await self.__f(shell, **vars(self.parser.parse(line)))
+
+
+def command(f: Callable[..., Coroutine] | _Wrapper) -> Callable[[ShellType, str], bool]:
+    """
+    Make a command compatible with the underlying `cmd.Cmd` class
+    It should only be used on methods of a class derived from `Shell` whose identifiers begin with 'do_'.
+    """
+    return lambda self, line: self.create_task(_ensure_wrapper(f)(self, line))
+
+
+def argument(*args, **kwargs) -> Callable[[Callable], Callable]:
+    """
+    Provide an argument specification
+    This decorator behaves like the `ArgumentParser.add_argument` method. However, the result from the call of `ArgumentParser.parse_args` is unpacked to the command.
+    """
+
+    def impl(f):
+        f = _ensure_wrapper(f)
+        f.parser.add_argument(*args, **kwargs)
+        return f
+
+    return impl
+
+
+def _ensure_wrapper(f: Callable[..., Coroutine] | _Wrapper) -> _Wrapper:
+    """
+    Wrap an async function if needed
+    """
+    if type(f) is _Wrapper:
+        return f
+    else:
+        return _Wrapper(f)
 
 
 class _Parser(ArgumentParser):
