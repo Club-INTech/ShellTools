@@ -74,7 +74,7 @@ class Shell(cmd.Cmd):
         self.__loop = aio.get_event_loop()
         self.__continue = True
         await aio.to_thread(self.cmdloop)
-        self.log_status("Exiting the shell...")
+        self.log_status("Exiting the shell...", regenerate_prompt=False)
 
     def create_task(self, coro: Coroutine) -> bool:
         """
@@ -87,7 +87,10 @@ class Shell(cmd.Cmd):
         return False
 
     def log(
-        self, msg: str = "", modifier: Optional[Callable[[str], str]] = None
+        self,
+        msg: str = "",
+        modifier: Optional[Callable[[str], str]] = None,
+        regenerate_prompt: bool = True,
     ) -> None:
         """
         Print the given message to the output stream
@@ -105,19 +108,19 @@ class Shell(cmd.Cmd):
         else:
             self.__ostream.write_raw(msg + "\n")
 
-        if self.__use_rawinput:
+        if self.__use_rawinput and regenerate_prompt:
             rle.forced_update_display()
 
         self.__ostream.release()
 
-    def log_error(self, msg: str) -> None:
-        self.log(msg, tmg.in_red)
+    def log_error(self, msg: str, *args, **kwargs) -> None:
+        self.log(msg, tmg.in_red, *args, **kwargs)
 
-    def log_help(self, msg: str) -> None:
-        self.log(msg, tmg.in_green)
+    def log_help(self, msg: str, *args, **kwargs) -> None:
+        self.log(msg, tmg.in_green, *args, **kwargs)
 
-    def log_status(self, msg: str) -> None:
-        self.log(msg, lambda x: tmg.in_yellow(tmg.in_bold(x)))
+    def log_status(self, msg: str, *args, **kwargs) -> None:
+        self.log(msg, lambda x: tmg.in_yellow(tmg.in_bold(x)), *args, **kwargs)
 
     def __create_task(self, coro: Coroutine):
         """
