@@ -65,7 +65,6 @@ class Shell(cmd.Cmd):
         Exit the shell
         It is invoked when an end-of-file is received
         """
-        self.log_status("Exiting the shell...")
         return True
 
     async def run(self) -> None:
@@ -75,6 +74,7 @@ class Shell(cmd.Cmd):
         self.__loop = aio.get_event_loop()
         self.__continue = True
         await aio.to_thread(self.cmdloop)
+        self.log_status("Exiting the shell...")
 
     def create_task(self, coro: Coroutine) -> bool:
         """

@@ -23,9 +23,8 @@ class MockShell(Shell):
 
     @command
     async def do_alert(self, _):
-        self.log("alert")
-        self.log("alert")
-        self.log("alert")
+        for i in range(100):
+            self.log("alert")
 
     @command
     async def do_timmed_alert(self, _):
@@ -83,4 +82,4 @@ async def test_print_to_stdout(mock_shell, mock_stdin, mock_stdout):
     mock_stdin.seek(0)
     await mock_shell.run()
 
-    assert mock_stdout.getvalue() == "alert\nalert\nalert\nExiting the shell...\n"
+    assert mock_stdout.getvalue() == "alert\n" * 100 + "Exiting the shell...\n"
