@@ -1,8 +1,8 @@
 import pytest
-import test_extension_module as tem
 import unpadded as upd
 
-from tracker import *
+from ..tracker import *
+from . import test_extension_module as tem  # type: ignore
 
 
 class MockClient(upd.Client):

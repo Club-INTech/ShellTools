@@ -3,7 +3,7 @@ from io import StringIO
 
 import pytest
 
-from shell import *
+from ..shell import *
 
 
 class MockShell(Shell):
