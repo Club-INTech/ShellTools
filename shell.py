@@ -8,6 +8,7 @@ import os
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Coroutine
 from sys import stdin, stdout
+from textwrap import dedent
 from typing import NoReturn, Optional, TextIO, TypeVar
 
 import terminology as tmg
@@ -160,21 +161,15 @@ class ShellError(Exception):
         super().__init__(message)
 
 
-class ShellQuietParseError(ShellError):
-    """
-    Meant to be silenced by a `_Wrapper`
-    It indicated that a command line could not be parsed, but the `_Parser` already output the error to the output stream.
-    """
-
-
-
 class _Wrapper:
     def __init__(self, f: Callable):
         """
         Hold a callable which will received the CLI arguments
         """
         self.__f = f
-        self.parser = _Parser(prog=f.__name__)
+
+        doc = tmg.in_bold(dedent(f.__doc__)) if f.__doc__ else None
+        self.parser = _Parser(prog=f.__name__, description=doc)
 
     async def __call__(self, shell: Shell, line: str) -> None:
         """
@@ -182,7 +177,7 @@ class _Wrapper:
         """
         try:
             await self.__f(shell, **vars(self.parser.parse(shell, line)))
-        except ShellQuietParseError:
+        except SystemExit:
             pass
 
 
@@ -254,7 +249,7 @@ class _Parser(ArgumentParser):
         """
         self.print_usage()
         self.__shell.log_error(msg)
-        raise ShellQuietParseError()
+        raise SystemExit()
 
     def _print_message(self, message: str, _=None) -> None:
         """

@@ -14,25 +14,40 @@ class MockShell(Shell):
 
     @command
     async def do_increment(self):
+        """
+        Increment once
+        """
         self.x += 1
 
     @command
     @argument("n", type=int)
     async def do_increment_by(self, n):
+        """
+        Increment n times
+        """
         self.x += n
 
     @command
     async def do_alert(self):
+        """
+        Print some alerts
+        """
         for i in range(3):
             self.log("alert")
 
     @command
     async def do_big_alert(self):
+        """
+        Print many alerts
+        """
         for i in range(100):
             self.log("alert")
 
     @command
     async def do_timmed_alert(self):
+        """
+        Print asynchronous alerts
+        """
         self.log("alert1")
         await aio.sleep(1)
         self.log("alert2")
@@ -41,10 +56,16 @@ class MockShell(Shell):
 
     @command
     async def do_panic(self):
+        """
+        Exit in panic
+        """
         raise Exception("I panicked")
 
     @command
     async def do_error(self):
+        """
+        Print an error
+        """
         raise ShellError("Oops")
 
 
