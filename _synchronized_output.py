@@ -1,14 +1,16 @@
+from collections.abc import Callable
 from threading import Lock
 from typing import TextIO
 
 
 class _SynchronizedOStream(TextIO):
-    def __init__(self, ostream: TextIO):
+    def __init__(self, ostream: TextIO, modifier: Callable[[str], str]):
         """
         Wrap an output stream
         """
         self.__ostream = ostream
         self.__lock = Lock()
+        self.__modifier = modifier
 
     def __enter__(*_):
         raise NotImplementedError()
@@ -66,9 +68,13 @@ class _SynchronizedOStream(TextIO):
         Write a string to the wrapped output stream
         The lock is release if and only if `msg` is newline-terminated.
         """
+
+        if msg == "":
+            return 0
+
         self.__lock.acquire()
-        n = self.write_raw(msg)
-        if n == 0 or msg[n - 1] == "\n":
+        n = self.write_raw(self.__modifier(msg))
+        if msg[-1] == "\n":
             self.__lock.release()
 
         return n

@@ -35,6 +35,10 @@ class MockShell(Shell):
         await aio.sleep(1)
         self.log("alert3")
 
+    @command
+    async def do_panic(self, _):
+        raise Exception("I panicked")
+
 
 @pytest.fixture
 def mock_stdin():
@@ -79,4 +83,4 @@ async def test_print_to_stdout(mock_shell, mock_stdin, mock_stdout):
     mock_stdin.seek(0)
     await mock_shell.run()
 
-    assert mock_stdout.getvalue() == "alert\nalert\nalert\n"
+    assert mock_stdout.getvalue() == "alert\nalert\nalert\nExiting the shell...\n"

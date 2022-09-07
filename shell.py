@@ -8,10 +8,11 @@ import os
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Coroutine
 from sys import stdin, stdout
-from typing import Any, TextIO, TypeVar
+from typing import Any, Optional, TextIO, TypeVar
 
-from _synchronized_output import _SynchronizedOStream
+import terminology as tmg
 
+from ._synchronized_output import _SynchronizedOStream
 from .utility import readline_extension as rle  # type: ignore
 
 DEFAULT_PROMPT = "[shell] > "
@@ -30,7 +31,7 @@ class Shell(cmd.Cmd):
         """
 
         self.__istream = istream
-        self.__ostream = _SynchronizedOStream(ostream)
+        self.__ostream = _SynchronizedOStream(ostream, modifier=tmg.in_yellow)
         self.__prompt = prompt
 
         self.__use_rawinput = istream is stdin and ostream is stdout
@@ -51,11 +52,12 @@ class Shell(cmd.Cmd):
         """
         return self.__use_rawinput
 
-    def default(self, _):
+    def default(self, line):
         """
         Exit the shell if needed
         It overrides the base class method of the same name. It allows to leave the shell whatever the input line might be.
         """
+        self.log_error("`" + tmg.in_bold(line.split()[0]) + "` is not a command")
         return not self.__continue
 
     def do_EOF(self, _) -> bool:
@@ -63,6 +65,7 @@ class Shell(cmd.Cmd):
         Exit the shell
         It is invoked when an end-of-file is received
         """
+        self.log_status("Exiting the shell...")
         return True
 
     async def run(self) -> None:
@@ -83,7 +86,9 @@ class Shell(cmd.Cmd):
         self.__loop.call_soon_threadsafe(self.__create_task, coro)
         return False
 
-    def log(self, msg: str = "") -> None:
+    def log(
+        self, msg: str = "", modifier: Optional[Callable[[str], str]] = None
+    ) -> None:
         """
         Print the given message to the output stream
         A new line is inserted after the message.
@@ -93,12 +98,23 @@ class Shell(cmd.Cmd):
         if self.__use_rawinput:
             self.__ostream.write_raw("\r" + " " * os.get_terminal_size().columns + "\r")
 
+        if modifier and self.__use_rawinput:
+            msg = modifier(msg)
         self.__ostream.write_raw(msg + "\n")
 
         if self.__use_rawinput:
             rle.forced_update_display()
 
         self.__ostream.release()
+
+    def log_error(self, msg: str) -> None:
+        self.log(msg, tmg.in_red)
+
+    def log_help(self, msg: str) -> None:
+        self.log(msg, tmg.in_green)
+
+    def log_status(self, msg: str) -> None:
+        self.log(msg, lambda x: tmg.in_yellow(tmg.in_bold(x)))
 
     def __create_task(self, coro: Coroutine):
         """
@@ -121,8 +137,8 @@ class Shell(cmd.Cmd):
             self.__ostream.write(str(e) + "\n")
         except Exception as e:
             self.__continue = False
-            self.__ostream.write(f"An unrecoverable error has occured : {e}\n")
-            self.__ostream.write("Press ENTER to quit.\n")
+            self.log_error(f"An unrecoverable error has occured : {e}\n")
+            self.log_status("Press ENTER to quit.\n")
 
 
 ShellType = TypeVar("ShellType", bound=Shell)
