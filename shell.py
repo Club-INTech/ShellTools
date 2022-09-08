@@ -7,6 +7,7 @@ import cmd
 import os
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Coroutine
+from contextlib import asynccontextmanager
 from sys import stdin, stdout
 from textwrap import dedent
 from typing import NoReturn, Optional, TextIO, TypeVar
@@ -17,6 +18,7 @@ from ._synchronized_output import _SynchronizedOStream
 from .utility import readline_extension as rle  # type: ignore
 
 DEFAULT_PROMPT = "[shell] > "
+UP_GOER = "\033[F"
 
 
 class Shell(cmd.Cmd):
@@ -34,6 +36,7 @@ class Shell(cmd.Cmd):
         self.__istream = istream
         self.__ostream = _SynchronizedOStream(ostream, modifier=tmg.in_yellow)
         self.__prompt = prompt
+        self.__banner: Optional[str] = None
 
         self.__use_rawinput = istream is stdin and ostream is stdout
 
@@ -89,7 +92,7 @@ class Shell(cmd.Cmd):
 
     def log(
         self,
-        msg: str = "",
+        msg: str,
         modifier: Optional[Callable[[str], str]] = None,
         regenerate_prompt: bool = True,
     ) -> None:
@@ -97,7 +100,6 @@ class Shell(cmd.Cmd):
         Print the given message to the output stream
         A new line is inserted after the message.
         """
-        line_eraser = "\r" + " " * os.get_terminal_size().columns + "\r"
 
         self.__ostream.acquire()
 
@@ -105,9 +107,13 @@ class Shell(cmd.Cmd):
             msg = modifier(msg)
 
         if self.__use_rawinput:
-            self.__ostream.write_raw(line_eraser + msg + "\n")
+            msg = _line_eraser() + msg + "\n"
+            if self.__banner is not None:
+                msg += _line_eraser() + "\n" + self.__banner + UP_GOER
         else:
-            self.__ostream.write_raw(msg + "\n")
+            msg += "\n"
+
+        self.__ostream.write_raw(msg)
 
         if self.__use_rawinput and regenerate_prompt:
             rle.forced_update_display()
@@ -122,6 +128,27 @@ class Shell(cmd.Cmd):
 
     def log_status(self, msg: str, *args, **kwargs) -> None:
         self.log(msg, lambda x: tmg.in_yellow(tmg.in_bold(x)), *args, **kwargs)
+
+    @asynccontextmanager
+    async def banner(self, banner: str, refresh_delay_s: int):
+        """
+        Display a banner under the prompt
+        Only one banner can be displayed at a time.
+        """
+
+        if self.__banner is not None:
+            raise RuntimeError("A banner is already being displayed")
+
+        self.__banner = banner
+        self.__banner_refresh_delay_s = refresh_delay_s
+        self.__update_banner_stop_event = aio.Event()
+        update_banner_task = aio.create_task(self.__update_banner_task())
+
+        yield self.__banner
+
+        self.__update_banner_stop_event.set()
+        await update_banner_task
+        self.__banner = None
 
     def __create_task(self, coro: Coroutine):
         """
@@ -147,8 +174,43 @@ class Shell(cmd.Cmd):
             self.log_error(f"An unrecoverable error has occured : {e}")
             self.log_status("Press ENTER to quit.")
 
+    async def __update_banner_task(self) -> None:
+        """
+        Update the banner output regulary
+        """
+        assert self.__banner is not None
+
+        if not self.__use_rawinput:
+            return
+
+        self.__ostream.acquire()
+        self.__ostream.write_raw("\n" + self.__banner + UP_GOER)
+        rle.forced_update_display()
+        self.__ostream.release()
+
+        while not self.__update_banner_stop_event.is_set():
+            self.__ostream.acquire()
+            self.__ostream.write_raw(
+                "\n" + _line_eraser() + self.__banner + UP_GOER + _line_eraser()
+            )
+            rle.forced_update_display()
+            self.__ostream.release()
+            await aio.sleep(self.__banner_refresh_delay_s)
+
+        self.__ostream.acquire()
+        self.__ostream.write_raw("\n" + _line_eraser() + UP_GOER)
+        rle.forced_update_display()
+        self.__ostream.release()
+
 
 ShellType = TypeVar("ShellType", bound=Shell)
+
+
+def _line_eraser() -> str:
+    """
+    Return a string that can erase a whole line in the current terminal
+    """
+    return "\r" + " " * os.get_terminal_size().columns + "\r"
 
 
 class ShellError(Exception):

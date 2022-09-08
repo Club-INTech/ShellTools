@@ -68,6 +68,11 @@ class MockShell(Shell):
         """
         raise ShellError("Oops")
 
+    @command
+    async def do_banner(self):
+        async with self.banner("HELLO THERE", refresh_delay_s=500e-3):
+            await aio.sleep(10)
+
 
 @pytest.fixture
 def mock_stdin():
