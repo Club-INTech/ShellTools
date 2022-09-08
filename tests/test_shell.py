@@ -4,6 +4,7 @@ from io import StringIO
 
 import pytest
 
+from ..display.banner import *
 from ..shell import *
 
 
@@ -70,8 +71,10 @@ class MockShell(Shell):
 
     @command
     async def do_banner(self):
-        async with self.banner("HELLO THERE", refresh_delay_s=500e-3):
-            await aio.sleep(10)
+        async with self.banner(ProgressBar("Hi !"), refresh_delay_s=120e-3) as bar:
+            while bar.progress < 1:
+                bar.progress += 0.002
+                await aio.sleep(50e-3)
 
 
 @pytest.fixture

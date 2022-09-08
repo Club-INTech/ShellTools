@@ -109,7 +109,7 @@ class Shell(cmd.Cmd):
         if self.__use_rawinput:
             msg = _line_eraser() + msg + "\n"
             if self.__banner is not None:
-                msg += _line_eraser() + "\n" + self.__banner + UP_GOER
+                msg += _line_eraser() + "\n" + str(self.__banner) + UP_GOER
         else:
             msg += "\n"
 
@@ -184,14 +184,14 @@ class Shell(cmd.Cmd):
             return
 
         self.__ostream.acquire()
-        self.__ostream.write_raw("\n" + self.__banner + UP_GOER)
+        self.__ostream.write_raw("\n" + str(self.__banner) + UP_GOER)
         rle.forced_update_display()
         self.__ostream.release()
 
         while not self.__update_banner_stop_event.is_set():
             self.__ostream.acquire()
             self.__ostream.write_raw(
-                "\n" + _line_eraser() + self.__banner + UP_GOER + _line_eraser()
+                "\n" + _line_eraser() + str(self.__banner) + UP_GOER + _line_eraser()
             )
             rle.forced_update_display()
             self.__ostream.release()
