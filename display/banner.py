@@ -32,8 +32,18 @@ class ProgressBar:
         """
         prefix = f"| {self.__text} |"
 
+        if self.__progress > 1:
+            overflow_text = "OVERFLOW >>"
+            return (
+                prefix
+                + (os.get_terminal_size().columns - len(prefix + overflow_text)) * " "
+                + overflow_text
+            )
+        if self.__progress < 0:
+            return prefix + " << UNDERFLOW"
+
         blocks_nb = int(
-            8 * (os.get_terminal_size().columns - 1 - len(prefix)) * self.__progress
+            8 * (os.get_terminal_size().columns - len(prefix)) * self.__progress
         )
         remainder = blocks_nb % 8
         last_chr = chr(ord("█") + 7 - remainder)
