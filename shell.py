@@ -4,21 +4,18 @@ Shell interface
 
 import asyncio as aio
 import cmd
-import os
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Coroutine
 from contextlib import asynccontextmanager
 from sys import stdin, stdout
 from textwrap import dedent
-from typing import NoReturn, Optional, TextIO, TypeVar
+from typing import NoReturn, TextIO, TypeVar
 
 import terminology as tmg
 
-from ._synchronized_output import _SynchronizedOStream
-from .utility import readline_extension as rle  # type: ignore
+from .display.synchronized_ostream import SynchronizedOStream
 
 DEFAULT_PROMPT = "[shell] > "
-UP_GOER = "\033[F"
 
 
 class Shell(cmd.Cmd):
@@ -33,12 +30,12 @@ class Shell(cmd.Cmd):
         `use_rawinput` will be set to `True` if and only if `istream` is `sys.stdin` and `ostream` is `sys.stdout`.
         """
 
-        self.__istream = istream
-        self.__ostream = _SynchronizedOStream(ostream, modifier=tmg.in_yellow)
-        self.__prompt = prompt
-        self.__banner: Optional[str] = None
-
         self.__use_rawinput = istream is stdin and ostream is stdout
+        self.__istream = istream
+        self.__ostream = SynchronizedOStream(
+            ostream, use_rawinput=self.__use_rawinput, modifier=tmg.in_yellow
+        )
+        self.__prompt = prompt
 
         super().__init__(stdin=istream, stdout=self.__ostream)
 
@@ -90,44 +87,32 @@ class Shell(cmd.Cmd):
         self.__loop.call_soon_threadsafe(self.__create_task, coro)
         return False
 
-    def log(
-        self,
-        msg: str,
-        modifier: Optional[Callable[[str], str]] = None,
-        regenerate_prompt: bool = True,
-    ) -> None:
+    def log(self, *args, **kwargs) -> None:
         """
-        Print the given message to the output stream
-        A new line is inserted after the message.
+        Log a message of any choosen style
+        `args` and `kwargs` are forwarded to `SynchronizedOStream.log`.
         """
-
-        self.__ostream.acquire()
-
-        if modifier and self.__use_rawinput:
-            msg = modifier(msg)
-
-        if self.__use_rawinput:
-            msg = _line_eraser() + msg + "\n"
-            if self.__banner is not None:
-                msg += _line_eraser() + "\n" + str(self.__banner) + UP_GOER
-        else:
-            msg += "\n"
-
-        self.__ostream.write_raw(msg)
-
-        if self.__use_rawinput and regenerate_prompt:
-            rle.forced_update_display()
-
-        self.__ostream.release()
+        self.__ostream.log(*args, **kwargs)
 
     def log_error(self, msg: str, *args, **kwargs) -> None:
-        self.log(msg, tmg.in_red, *args, **kwargs)
+        """
+        Log an error
+        """
+        self.__ostream.log(msg, tmg.in_red, *args, **kwargs)
 
     def log_help(self, msg: str, *args, **kwargs) -> None:
-        self.log(msg, tmg.in_green, *args, **kwargs)
+        """
+        Log a help message
+        """
+        self.__ostream.log(msg, tmg.in_green, *args, **kwargs)
 
     def log_status(self, msg: str, *args, **kwargs) -> None:
-        self.log(msg, lambda x: tmg.in_yellow(tmg.in_bold(x)), *args, **kwargs)
+        """
+        Log a status message
+        """
+        self.__ostream.log(
+            msg, lambda x: tmg.in_yellow(tmg.in_bold(x)), *args, **kwargs
+        )
 
     @asynccontextmanager
     async def banner(self, banner: str, refresh_delay_s: int):
@@ -136,19 +121,17 @@ class Shell(cmd.Cmd):
         Only one banner can be displayed at a time.
         """
 
-        if self.__banner is not None:
-            raise RuntimeError("A banner is already being displayed")
+        stop_event = aio.Event()
+        update_banner_task = aio.create_task(
+            self.__ostream.update_banner(
+                banner, refresh_delay_s=refresh_delay_s, stop_event=stop_event
+            )
+        )
 
-        self.__banner = banner
-        self.__banner_refresh_delay_s = refresh_delay_s
-        self.__update_banner_stop_event = aio.Event()
-        update_banner_task = aio.create_task(self.__update_banner_task())
+        yield banner
 
-        yield self.__banner
-
-        self.__update_banner_stop_event.set()
+        stop_event.set()
         await update_banner_task
-        self.__banner = None
 
     def __create_task(self, coro: Coroutine):
         """
@@ -174,43 +157,8 @@ class Shell(cmd.Cmd):
             self.log_error(f"An unrecoverable error has occured : {e}")
             self.log_status("Press ENTER to quit.")
 
-    async def __update_banner_task(self) -> None:
-        """
-        Update the banner output regulary
-        """
-        assert self.__banner is not None
-
-        if not self.__use_rawinput:
-            return
-
-        self.__ostream.acquire()
-        self.__ostream.write_raw("\n" + str(self.__banner) + UP_GOER)
-        rle.forced_update_display()
-        self.__ostream.release()
-
-        while not self.__update_banner_stop_event.is_set():
-            self.__ostream.acquire()
-            self.__ostream.write_raw(
-                "\n" + _line_eraser() + str(self.__banner) + UP_GOER + _line_eraser()
-            )
-            rle.forced_update_display()
-            self.__ostream.release()
-            await aio.sleep(self.__banner_refresh_delay_s)
-
-        self.__ostream.acquire()
-        self.__ostream.write_raw("\n" + _line_eraser() + UP_GOER)
-        rle.forced_update_display()
-        self.__ostream.release()
-
 
 ShellType = TypeVar("ShellType", bound=Shell)
-
-
-def _line_eraser() -> str:
-    """
-    Return a string that can erase a whole line in the current terminal
-    """
-    return "\r" + " " * os.get_terminal_size().columns + "\r"
 
 
 class ShellError(Exception):
