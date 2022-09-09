@@ -30,7 +30,7 @@ class SynchronizedOStream(TextIO):
         self.__use_rawinput = use_rawinput
         self.__modifier = modifier
         self.__in_context = False
-        self.__banner: Optional[str] = None
+        self.__banners: List[str] = []
 
     def __enter__(self) -> "SynchronizedOStream":
         """
@@ -138,8 +138,8 @@ class SynchronizedOStream(TextIO):
 
             if self.__use_rawinput:
                 msg = _linewiper(msg)
-                if self.__banner is not None:
-                    msg += _below(str(self.__banner)) + _linewiper()
+                for i, banner in enumerate(self.__banners):
+                    msg += _below(str(banner), position=i) + _linewiper()
             else:
                 msg += "\n"
 
@@ -152,32 +152,32 @@ class SynchronizedOStream(TextIO):
         self, banner: str, refresh_delay_s: int, stop_event: aio.Event
     ) -> None:
         """
-        Update the banner output regulary
+        Add a banner to display, update its output regulary and remove it
         The banner update can be stopped by setting `stop_event`.
         """
-        if self.__banner is not None:
-            raise RuntimeError("A banner is already being displayed")
-
-        self.__banner = banner
+        self.__banners.append(banner)
 
         if not self.__use_rawinput:
             return
 
         with self:
-            self.__ostream.write(_below(str(self.__banner)))
+            self.__ostream.write(_below(str(banner)))
             rle.forced_update_display()
 
         while not stop_event.is_set():
             with self:
-                self.__ostream.write(_below(str(self.__banner)) + _linewiper())
+                self.__ostream.write(
+                    _below(str(banner), position=self.__banners.index(banner))
+                    + _linewiper()
+                )
                 rle.forced_update_display()
             await aio.sleep(refresh_delay_s)
 
         with self:
-            self.__ostream.write(_below())
+            self.__ostream.write(_below(position=self.__banners.index(banner)))
             rle.forced_update_display()
 
-        self.__banner = None
+        self.__banners.remove(banner)
 
     def acquire(self) -> None:
         """
@@ -205,8 +205,15 @@ def _linewiper(msg: Optional[str] = None) -> str:
     )
 
 
-def _below(msg: str = "") -> str:
+def _below(msg: str = "", position: int = 0) -> str:
     """
     Write a message below the cursor and go back up at the beginning of the line
+    A message can be printed several lines below with the `position` parameter.
     """
-    return "\n" + " " * os.get_terminal_size().columns + "\r" + msg + UP_GOER
+    return (
+        "\n" * (position + 1)
+        + " " * os.get_terminal_size().columns
+        + "\r"
+        + msg
+        + UP_GOER * (position + 1)
+    )

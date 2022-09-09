@@ -91,6 +91,10 @@ class MockShell(Shell):
             refresh_delay_s=60e-3,
         ) as bar:
             await aio.sleep(5)
+        async with self.banner(
+            BarSpinner("Hello..."), refresh_delay_s=60e-3
+        ), self.banner(BarSpinner("...there !"), refresh_delay_s=60e-3):
+            await aio.sleep(5)
 
 
 @pytest.fixture
