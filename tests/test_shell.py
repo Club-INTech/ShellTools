@@ -71,10 +71,12 @@ class MockShell(Shell):
 
     @command
     async def do_banner(self):
-        async with self.banner(ProgressBar("Hi !"), refresh_delay_s=120e-3) as bar:
+        async with self.banner(ProgressBar("Hi !"), refresh_delay_s=60e-3) as bar:
             while bar.progress < 1:
-                bar.progress += 0.002
+                bar.progress += 0.01
                 await aio.sleep(50e-3)
+        async with self.banner(BarSpinner("Spinning..."), refresh_delay_s=60e-3) as bar:
+            await aio.sleep(5)
 
 
 @pytest.fixture

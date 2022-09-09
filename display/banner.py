@@ -49,3 +49,34 @@ class ProgressBar:
     @progress.setter
     def progress(self, p: float) -> None:
         self.__progress = p
+
+
+class BarSpinner:
+    """
+    Preview :
+    `| Spinning... |▅▃▁▇`
+    """
+
+    PATTERN = "▁▂▃▄▅▆▇█"
+
+    def __init__(self, text: str = "", modifier: Callable[[str], str] = lambda x: x):
+        """
+        Set the text to display before the bar
+        A modifier can be specified to change the color of the bar.
+        """
+        self.__text = text
+        self.__modifier = modifier
+        self.__progress = 0
+
+    def __str__(self) -> str:
+        """
+        Update the progress and return the new representation
+        """
+        self.__progress = (self.__progress + 1) % len(self.PATTERN)
+
+        return f"| {self.__text} |" + (
+            self.PATTERN[(self.__progress + 4) % len(self.PATTERN)]
+            + self.PATTERN[self.__progress]
+            + self.PATTERN[(self.__progress + 6) % len(self.PATTERN)]
+            + self.PATTERN[(self.__progress + 2) % len(self.PATTERN)]
+        )
