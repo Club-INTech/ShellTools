@@ -33,7 +33,7 @@ class ProgressBar:
         prefix = f"| {self.__text} |"
 
         blocks_nb = int(
-            8 * (os.get_terminal_size().columns - len(prefix)) * self.__progress
+            8 * (os.get_terminal_size().columns - 1 - len(prefix)) * self.__progress
         )
         remainder = blocks_nb % 8
         last_chr = chr(ord("█") + 7 - remainder)
