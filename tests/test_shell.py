@@ -1,6 +1,7 @@
 import asyncio as aio
 import random as rnd
 from io import StringIO
+from math import sin
 
 import pytest
 import terminology as tmg
@@ -82,19 +83,21 @@ class MockShell(Shell):
         ) as bar:
             while bar.progress < 1.2:
                 bar.progress += 0.01
-                await aio.sleep(50e-3)
+                await aio.sleep(10e-3)
             while bar.progress > -0.2:
                 bar.progress -= 0.01
-                await aio.sleep(50e-3)
+                await aio.sleep(10e-3)
         async with self.banner(
             BarSpinner("Spinning...", modifier=lambda x: tmg.in_black(tmg.on_cyan(x))),
             refresh_delay_s=60e-3,
         ) as bar:
-            await aio.sleep(5)
+            await aio.sleep(3)
         async with self.banner(
-            BarSpinner("Hello..."), refresh_delay_s=60e-3
-        ), self.banner(BarSpinner("...there !"), refresh_delay_s=60e-3):
-            await aio.sleep(5)
+            TwoWayBar("Hello..."), refresh_delay_s=60e-3
+        ) as bar, self.banner(BarSpinner("...there !"), refresh_delay_s=60e-3):
+            for i in range(100):
+                bar.progress = 1.2 * sin(i / 10)
+                await aio.sleep(5 / 100)
 
 
 @pytest.fixture
