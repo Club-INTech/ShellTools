@@ -3,6 +3,7 @@ import random as rnd
 from io import StringIO
 
 import pytest
+import terminology as tmg
 
 from ..display.banner import *
 from ..shell import *
@@ -71,14 +72,24 @@ class MockShell(Shell):
 
     @command
     async def do_banner(self):
-        async with self.banner(ProgressBar("Hi !"), refresh_delay_s=60e-3) as bar:
+        async with self.banner(
+            ProgressBar(
+                "Hi !",
+                modifier=tmg.in_red,
+                bg_modifier_when_full=lambda x: tmg.on_red(tmg.in_black(x)),
+            ),
+            refresh_delay_s=60e-3,
+        ) as bar:
             while bar.progress < 1.2:
                 bar.progress += 0.01
                 await aio.sleep(50e-3)
             while bar.progress > -0.2:
                 bar.progress -= 0.01
                 await aio.sleep(50e-3)
-        async with self.banner(BarSpinner("Spinning..."), refresh_delay_s=60e-3) as bar:
+        async with self.banner(
+            BarSpinner("Spinning...", modifier=lambda x: tmg.in_black(tmg.on_cyan(x))),
+            refresh_delay_s=60e-3,
+        ) as bar:
             await aio.sleep(5)
 
 

@@ -17,13 +17,19 @@ class ProgressBar:
     `| Hi ! |██████████████████████████████████████████`
     """
 
-    def __init__(self, text: str = "", modifier: Callable[[str], str] = lambda x: x):
+    def __init__(
+        self,
+        text: str = "",
+        modifier: Callable[[str], str] = lambda x: x,
+        bg_modifier_when_full: Callable[[str], str] = lambda x: x,
+    ):
         """
         Set the text to display before the bar
         A modifier can be specified to change the color of the bar.
         """
         self.__text = text
         self.__modifier = modifier
+        self.__bg_modifier_when_full = bg_modifier_when_full
         self.__progress = 0.0
 
     def __str__(self) -> str:
@@ -34,20 +40,19 @@ class ProgressBar:
 
         if self.__progress > 1:
             overflow_text = "OVERFLOW >>"
-            return (
-                prefix
-                + (os.get_terminal_size().columns - len(prefix + overflow_text)) * " "
+            return self.__modifier(prefix) + self.__bg_modifier_when_full(
+                (os.get_terminal_size().columns - len(prefix + overflow_text)) * " "
                 + overflow_text
             )
         if self.__progress < 0:
-            return prefix + " << UNDERFLOW"
+            return self.__modifier(prefix + " << UNDERFLOW")
 
         blocks_nb = int(
             8 * (os.get_terminal_size().columns - len(prefix)) * self.__progress
         )
         remainder = blocks_nb % 8
         last_chr = chr(ord("█") + 7 - remainder)
-        return prefix + int(blocks_nb / 8) * "█" + last_chr
+        return self.__modifier(prefix + int(blocks_nb / 8) * "█" + last_chr)
 
     @property
     def progress(self) -> float:
@@ -84,9 +89,13 @@ class BarSpinner:
         """
         self.__progress = (self.__progress + 1) % len(self.PATTERN)
 
-        return f"| {self.__text} |" + (
+        line = f"| {self.__text} |" + (
             self.PATTERN[(self.__progress + 4) % len(self.PATTERN)]
             + self.PATTERN[self.__progress]
             + self.PATTERN[(self.__progress + 6) % len(self.PATTERN)]
             + self.PATTERN[(self.__progress + 2) % len(self.PATTERN)]
+        )
+
+        return self.__modifier(
+            line + (os.get_terminal_size().columns - len(line)) * " "
         )
