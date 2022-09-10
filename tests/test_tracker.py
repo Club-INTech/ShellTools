@@ -46,7 +46,7 @@ async def test_track_until_timeout(triple_reporter_client):
         report_key=tem.report,
     )
 
-    async with tracker:
+    async with tracker as ctx:
         assert DataFrame(
             {"timestamp": [0, 1, 2], "left": [2, 1, 2], "right": [0, 1, 2]}
-        ).equals(await tracker.timeout(10e-3))
+        ).equals(await ctx.timeout(10e-3))
