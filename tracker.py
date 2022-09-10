@@ -52,7 +52,6 @@ class Tracker:
         """
         Tell the remote device to stop reporting, cancel all tasks and erase all measures
         """
-        return 0
 
         await self.__client.call(self.__control_key, Command.STOP)
         for task in self.__tasks:
