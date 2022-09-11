@@ -9,7 +9,7 @@ from collections.abc import Callable, Coroutine
 from contextlib import asynccontextmanager
 from sys import stdin, stdout
 from textwrap import dedent
-from typing import NoReturn, TextIO, TypeVar
+from typing import NoReturn, Optional, TextIO, TypeVar
 
 import terminology as tmg
 
@@ -181,22 +181,50 @@ class _Wrapper:
         doc = tmg.in_bold(dedent(f.__doc__)) if f.__doc__ else None
         self.parser = _Parser(prog=f.__name__, description=doc)
 
-    async def __call__(self, shell: Shell, line: str) -> None:
+    @property
+    def is_async(self) -> bool:
+        """
+        Tell whether the stored callable is an async function
+        """
+        return aio.iscoroutinefunction(self.__f)
+
+    def call_command(self, shell: Shell, line: str, extra_parameters: dict) -> bool:
         """
         Forward the accumulated CLI argument to the held callable
         """
         try:
-            await self.__f(shell, **vars(self.parser.parse(shell, line)))
+            result = self.__f(
+                shell, **vars(self.parser.parse(shell, line)), **extra_parameters
+            )
+            if self.is_async:
+                shell.create_task(result)
         except SystemExit:
             pass
 
+        return True
 
-def command(f: Callable[..., Coroutine] | _Wrapper) -> Callable[[ShellType, str], bool]:
+
+def command(capture_keyboard: Optional[str] = None) -> Callable:
     """
     Make a command compatible with the underlying `cmd.Cmd` class
     It should only be used on methods of a class derived from `Shell` whose identifiers begin with 'do_'.
+    The command can choose to capture keyboard input with the parameter `capture_keyboard`. Its value should be the name of the command parameter which will receive the keyboard listener. However, the command cannot be an async function.
     """
-    return lambda self, line: self.create_task(_ensure_wrapper(f)(self, line))
+
+    def impl(f: Callable) -> Callable[[ShellType, str], bool]:
+        nonlocal capture_keyboard
+
+        wrapper = _ensure_wrapper(f)
+
+        extra_parameters = {}
+        if capture_keyboard is not None:
+            if wrapper.is_async:
+                raise RuntimeError("Cannot capture keyboard within an async command")
+            extra_parameters[capture_keyboard] = 0
+
+        return lambda self, line: wrapper.call_command(self, line, extra_parameters)
+
+    return impl
 
 
 def argument(*args, **kwargs) -> Callable[[Callable], Callable]:
@@ -217,7 +245,7 @@ def _ensure_wrapper(f: Callable[..., Coroutine] | _Wrapper) -> _Wrapper:
     """
     Wrap an async function if needed
     """
-    if type(f) is _Wrapper:
+    if isinstance(f, _Wrapper):
         return f
     else:
         return _Wrapper(f)

@@ -15,14 +15,14 @@ class MockShell(Shell):
         self.x = 0
         super().__init__(*args, **kwargs)
 
-    @command
+    @command()
     async def do_increment(self):
         """
         Increment once
         """
         self.x += 1
 
-    @command
+    @command()
     @argument("n", type=int)
     async def do_increment_by(self, n):
         """
@@ -30,7 +30,7 @@ class MockShell(Shell):
         """
         self.x += n
 
-    @command
+    @command()
     async def do_alert(self):
         """
         Print some alerts
@@ -38,7 +38,7 @@ class MockShell(Shell):
         for i in range(3):
             self.log("alert")
 
-    @command
+    @command()
     async def do_big_alert(self):
         """
         Print many alerts
@@ -46,7 +46,7 @@ class MockShell(Shell):
         for i in range(100):
             self.log("alert")
 
-    @command
+    @command()
     async def do_timmed_alert(self):
         """
         Print asynchronous alerts
@@ -57,21 +57,21 @@ class MockShell(Shell):
         await aio.sleep(1)
         self.log("alert3")
 
-    @command
+    @command()
     async def do_panic(self):
         """
         Exit in panic
         """
         raise Exception("I panicked")
 
-    @command
+    @command()
     async def do_error(self):
         """
         Print an error
         """
         raise ShellError("Oops")
 
-    @command
+    @command()
     async def do_banner(self):
         async with self.banner(
             ProgressBar(
