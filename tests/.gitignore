@@ -1,0 +1,4 @@
+*
+!.gitignore
+!*.py
+!test_extension_module.cpp
