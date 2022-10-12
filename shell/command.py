@@ -3,7 +3,7 @@ import os
 import threading
 from argparse import ArgumentParser, Namespace
 from textwrap import dedent
-from typing import Any, Callable, Coroutine, Dict, NoReturn, Optional
+from typing import Any, Callable, Coroutine, Dict, NoReturn, Optional, Union
 
 import terminology as tmg
 
@@ -179,7 +179,7 @@ async def _run_then_notify(coro: Coroutine, done_event: threading.Event):
     done_event.set()
 
 
-def _ensure_wrapper(f: Callable[..., Coroutine] | _Wrapper) -> _Wrapper:
+def _ensure_wrapper(f: Union[Callable[..., Coroutine], _Wrapper]) -> _Wrapper:
     """
     Wrap an async function if needed
     """
