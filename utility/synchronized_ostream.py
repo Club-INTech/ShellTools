@@ -1,10 +1,9 @@
 import asyncio as aio
 import io
 import os
-from collections.abc import Callable
 from itertools import chain
 from threading import Lock
-from typing import Iterable, List, NoReturn, Optional, TextIO
+from typing import Callable, Iterable, List, NoReturn, Optional, TextIO
 
 from . import readline_extension as rle  # type: ignore
 
