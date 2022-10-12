@@ -4,18 +4,25 @@ Shell interface
 
 import asyncio as aio
 import cmd
+import os
+import threading
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Coroutine
 from contextlib import asynccontextmanager
+from functools import partial
+from queue import Queue
 from sys import stdin, stdout
 from textwrap import dedent
-from typing import NoReturn, Optional, TextIO, TypeVar
+from typing import Any, NoReturn, Optional, TextIO, TypeVar
 
+import pynput
 import terminology as tmg
 
 from .display.synchronized_ostream import SynchronizedOStream
 
 DEFAULT_PROMPT = "[shell] > "
+KEYBOARD_LISTENER_REFRESH_DELAY_S = 10e-3
+KNOWN_COMPATIBLE_TERMINALS = ["xterm"]
 
 
 class Shell(cmd.Cmd):
@@ -77,14 +84,17 @@ class Shell(cmd.Cmd):
         await aio.to_thread(self.cmdloop)
         self.log_status("Exiting the shell...", regenerate_prompt=False)
 
-    def create_task(self, coro: Coroutine) -> bool:
+    def create_task(
+        self, coro: Coroutine, cleanup_callback: Callable[[], None] = lambda: None
+    ) -> bool:
         """
         Schedule a coroutine to be carried out
         This method is thread-safe. This function is meant to schedule commands to be done. Thus, if the shell is stopping, this method will have no effect.
+        A cleanup callback can be provided, which will be invoked when the task is done.
         """
         if not self.__continue:
             return True
-        self.__loop.call_soon_threadsafe(self.__create_task, coro)
+        self.__loop.call_soon_threadsafe(self.__create_task, coro, cleanup_callback)
         return False
 
     def log(self, *args, **kwargs) -> None:
@@ -133,20 +143,27 @@ class Shell(cmd.Cmd):
         stop_event.set()
         await update_banner_task
 
-    def __create_task(self, coro: Coroutine):
+    def __create_task(
+        self, coro: Coroutine, cleanup_callback: Callable[[], None] = lambda: None
+    ):
         """
         Schedule a coroutine to be carried out
         This method is not thread-safe and should only be called through `create_task`.
         """
         task = self.__loop.create_task(coro)
-        task.add_done_callback(self.__finalize_task)
+        task.add_done_callback(
+            partial(self.__finalize_task, cleanup_callback=cleanup_callback)
+        )
 
-    def __finalize_task(self, task: aio.Task):
+    def __finalize_task(
+        self, task: aio.Task, cleanup_callback: Callable[[], None] = lambda: None
+    ):
         """
-        Handle a command finalization
+        Handle a command finalization and call the cleaning callback
         When a task associated to a command is done, this function is invoked to handle potential exception.
         """
         try:
+            cleanup_callback()
             e = task.exception()
             if e is not None:
                 raise e
@@ -188,27 +205,54 @@ class _Wrapper:
         """
         return aio.iscoroutinefunction(self.__f)
 
-    def call_command(self, shell: Shell, line: str, extra_parameters: dict) -> bool:
+    def call_command(
+        self,
+        shell: Shell,
+        line: str,
+        extra_parameters: dict[str, Any],
+        cleanup: Callable[[dict[str, Any]], None],
+        is_blocking: bool,
+    ) -> bool:
         """
-        Forward the accumulated CLI argument to the held callable
+        Forward the accumulated CLI argument to the held async function
+        The async function will also be given the `extra_parameters` keyword parameters.
+        If `is_blocking` is `True`, the thread reading the standard input will block until the command is done.
+        When the command is done, `cleanup` will be called.
         """
         try:
             result = self.__f(
                 shell, **vars(self.parser.parse(shell, line)), **extra_parameters
             )
+            cleanup_callback = lambda: cleanup(extra_parameters)
             if self.is_async:
-                shell.create_task(result)
+                if is_blocking:
+                    done_event = threading.Event()
+                    shell.create_task(
+                        _run_then_notify(result, done_event), cleanup_callback
+                    )
+                    done_event.wait()
+                else:
+                    shell.create_task(result, cleanup_callback)
         except SystemExit:
             pass
 
         return True
 
 
+async def _run_then_notify(coro: Coroutine, done_event: threading.Event):
+    """
+    Await `coro` then notify the caller that `coro` is done through `done_event`
+    This function is used to wait the completion of a coroutine from another thread.
+    """
+    await coro
+    done_event.set()
+
+
 def command(capture_keyboard: Optional[str] = None) -> Callable:
     """
     Make a command compatible with the underlying `cmd.Cmd` class
     It should only be used on methods of a class derived from `Shell` whose identifiers begin with 'do_'.
-    The command can choose to capture keyboard input with the parameter `capture_keyboard`. Its value should be the name of the command parameter which will receive the keyboard listener. However, the command cannot be an async function.
+    The command can choose to capture keyboard input with the parameter `capture_keyboard`. Its value should be the name of the command parameter which will receive the keyboard listener.
     """
 
     def impl(f: Callable) -> Callable[[ShellType, str], bool]:
@@ -216,15 +260,108 @@ def command(capture_keyboard: Optional[str] = None) -> Callable:
 
         wrapper = _ensure_wrapper(f)
 
-        extra_parameters = {}
-        if capture_keyboard is not None:
-            if wrapper.is_async:
-                raise RuntimeError("Cannot capture keyboard within an async command")
-            extra_parameters[capture_keyboard] = 0
+        return lambda obj, line: startup(obj, line, wrapper)
 
-        return lambda self, line: wrapper.call_command(self, line, extra_parameters)
+    def startup(obj, line, wrapper):
+        nonlocal capture_keyboard
+
+        extra_parameters = {}
+        is_blocking = False
+
+        if capture_keyboard is not None:
+            if not "TERM" in os.environ:
+                obj.log_status(
+                    "The terminal name could not be retreived. It might not be a problem, but do note that pyinput will not work with any terminal. If possible, run this program under a compatible terminal (xterm for example)."
+                )
+
+            terminal_name = os.environ["TERM"]
+            if terminal_name not in KNOWN_COMPATIBLE_TERMINALS:
+                obj.log_status(
+                    f"{terminal_name} might not be compatible with pyinput. If possible, run this program under a compatible terminal (xterm for example)."
+                )
+
+            is_blocking = True
+            extra_parameters[capture_keyboard] = KeyboardListener()
+            extra_parameters[capture_keyboard].start()
+
+        wrapper.call_command(obj, line, extra_parameters, cleanup, is_blocking)
+
+    def cleanup(extra_parameters):
+        nonlocal capture_keyboard
+
+        if capture_keyboard is not None:
+            extra_parameters[capture_keyboard].stop()
 
     return impl
+
+
+class KeyboardListener:
+    def __init__(self):
+        self.__pynput_listener = pynput.keyboard.Listener(
+            on_press=self.__push_pressed, on_release=self.__push_released, suppress=True
+        )
+        self.__event_lock = threading.Lock()
+
+    def start(self):
+        """
+        Start listening to the keyboard
+        """
+
+        self.__event_queue = Queue()
+        self.__pynput_listener.start()
+        self.__pynput_listener.wait()
+
+    def stop(self):
+        """
+        Stop listening to the keyboard
+        """
+
+        self.__pynput_listener.stop()
+
+    async def get(self):
+        """
+        Wait for a keyboard event
+        The return value has the format `(is_pressed, key)` with `is_pressed` equaling `True` if the event is a key press (otherwise, it is a key release) and `key` the `pynput.keyboard.Key` object associated with the pressed / released key.
+        """
+
+        while True:
+            if not self.__event_queue.empty():
+                return self.__event_queue.get_nowait()
+            await aio.sleep(0)
+
+    def __push_pressed(self, key: pynput.keyboard.Key):
+        """
+        Add a key press event to the queue
+        This method is meant to be invoked from `__pynput_listener`.
+        """
+
+        if self.__event_lock.locked():
+            return
+        self.__event_lock.acquire()
+        self.__event_queue.put((True, key))
+        self.__release_lock_later()
+
+    def __push_released(self, key: pynput.keyboard.Key):
+        """
+        Add a key release event to the queue
+        This method is meant to be invoked from `__pynput_listener`.
+        """
+
+        if self.__event_lock.locked():
+            return
+        self.__event_lock.acquire()
+        self.__event_queue.put((False, key))
+        self.__release_lock_later()
+
+    def __release_lock_later(self):
+        """
+        Release the lock on the event callbacks after `KEYBOARD_LISTENER_REFRESH_DELAY_S` seconds
+        This method is used within the event callbacks in order to slow down the arrival rate of the keyboard events.
+        """
+
+        threading.Timer(
+            KEYBOARD_LISTENER_REFRESH_DELAY_S, self.__event_lock.release
+        ).start()
 
 
 def argument(*args, **kwargs) -> Callable[[Callable], Callable]:

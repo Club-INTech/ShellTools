@@ -5,9 +5,11 @@ from math import sin
 
 import pytest
 import terminology as tmg
+from pynput.keyboard import Key
 
 from ..display.banner import *
 from ..shell import *
+from ..utility.match import Match
 
 
 class MockShell(Shell):
@@ -98,6 +100,38 @@ class MockShell(Shell):
             for i in range(100):
                 bar.progress = 1.2 * sin(i / 10)
                 await aio.sleep(5 / 100)
+
+    @command(capture_keyboard="listener")
+    async def do_move_bar(self, listener):
+        keep_going = True
+
+        async with self.banner(
+            TwoWayBar("Move me !"), refresh_delay_s=10e-3
+        ) as bar, self.banner(
+            BarSpinner("Press LEFT or RIGHT to move the bar (ESC to quit)"),
+            refresh_delay_s=60e-3,
+        ):
+
+            def move_left():
+                nonlocal bar
+                bar.progress -= 0.01
+
+            def move_right():
+                nonlocal bar
+                bar.progress += 0.01
+
+            def stop():
+                nonlocal keep_going
+                keep_going = False
+
+            while keep_going:
+                Match(await listener.get()) & {
+                    (True, Key.left): move_left,
+                    (True, Key.right): move_right,
+                    (False, Key.esc): stop,
+                    tuple: lambda _: None,
+                }
+                await aio.sleep(10e-3)
 
 
 @pytest.fixture
