@@ -5,8 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: sudo apt install ccache xvfb
-    - run: export DISPLAY=:99
-    - run: sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+    - run: sudo apt install ccache
     - run: ./configure
-    - run: ./check
+    - uses: GabrielBB/xvfb-action@v1
+      with:
+        run: ./check
