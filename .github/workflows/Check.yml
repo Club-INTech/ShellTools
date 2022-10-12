@@ -6,6 +6,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: sudo apt install ccache xvfb
-    - run: DISPLAY=99 sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+    - run: export DISPLAY=:99
+    - run: sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
     - run: ./configure
     - run: ./check
