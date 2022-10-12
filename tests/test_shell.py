@@ -7,9 +7,9 @@ import pytest
 import terminology as tmg
 from pynput.keyboard import Key
 
-from ..command import argument, command
-from ..display.banner import *
 from ..shell import *
+from ..shell.banner import *
+from ..shell.command import argument, command
 from ..utility.match import Match
 
 

@@ -1,0 +1,1 @@
+venv/bin/sphinx-build -M markdown -d .doctrees doc .

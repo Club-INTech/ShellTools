@@ -1,17 +1,10 @@
 import asyncio as aio
-import cmd
 import io
 import os
-from argparse import ArgumentParser, Namespace
-from collections.abc import Callable, Coroutine
-from contextlib import asynccontextmanager
+from collections.abc import Callable
 from itertools import chain
-from sys import stdin, stdout
-from textwrap import dedent
 from threading import Lock
-from typing import Iterable, List, NoReturn, Optional, TextIO, TypeVar
-
-import terminology as tmg
+from typing import Iterable, List, NoReturn, Optional, TextIO
 
 from . import readline_extension as rle  # type: ignore
 

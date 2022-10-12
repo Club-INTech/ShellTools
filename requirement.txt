@@ -6,5 +6,7 @@ mock-serial
 pandas
 terminology
 alive-progress
+sphinx
+sphinx-markdown-builder
 
 git+https://github.com/StarQTius/Unpadded

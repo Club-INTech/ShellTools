@@ -15,7 +15,7 @@ from typing import TextIO, TypeVar
 import pynput
 import terminology as tmg
 
-from .display.synchronized_ostream import SynchronizedOStream
+from ..utility.synchronized_ostream import SynchronizedOStream
 
 DEFAULT_PROMPT = "[shell] > "
 KEYBOARD_LISTENER_REFRESH_DELAY_S = 10e-3
