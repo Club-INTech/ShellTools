@@ -3,7 +3,7 @@ import os
 import threading
 from argparse import ArgumentParser, Namespace
 from textwrap import dedent
-from typing import Any, Callable, Coroutine, NoReturn, Optional
+from typing import Any, Callable, Coroutine, Dict, NoReturn, Optional
 
 import terminology as tmg
 
@@ -94,8 +94,8 @@ class _Wrapper:
         self,
         shell: Shell,
         line: str,
-        extra_parameters: dict[str, Any],
-        cleanup: Callable[[dict[str, Any]], None],
+        extra_parameters: Dict[str, Any],
+        cleanup: Callable[[Dict[str, Any]], None],
         is_blocking: bool,
     ) -> bool:
         """

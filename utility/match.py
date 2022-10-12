@@ -2,7 +2,7 @@
 Pattern matching utility
 """
 
-from typing import Any
+from typing import Any, Dict
 
 
 class Match:
@@ -21,7 +21,7 @@ class Match:
     def __init__(self, value: Any = None):
         self._value = value
 
-    def __and__(self, patterns: dict) -> Any:
+    def __and__(self, patterns: Dict) -> Any:
         if self._value is not None:
             return _match_pattern(patterns, self._value)
         else:
@@ -32,7 +32,7 @@ class Match:
         return _match_pattern(self._patterns, value)
 
 
-def _match_pattern(patterns: dict, value: Any) -> Any:
+def _match_pattern(patterns: Dict, value: Any) -> Any:
     # 'value' might not be hashable so we catch any exception that would come from patterns.get()
     object_by_value = None
     try:
