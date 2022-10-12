@@ -5,12 +5,11 @@ Shell interface
 import asyncio as aio
 import cmd
 import threading
-from collections.abc import Callable, Coroutine
 from contextlib import asynccontextmanager
 from functools import partial
 from queue import Queue
 from sys import stdin, stdout
-from typing import TextIO, TypeVar
+from typing import Callable, Coroutine, TextIO, TypeVar
 
 import pynput
 import terminology as tmg

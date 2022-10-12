@@ -2,9 +2,8 @@ import asyncio as aio
 import os
 import threading
 from argparse import ArgumentParser, Namespace
-from collections.abc import Callable, Coroutine
 from textwrap import dedent
-from typing import Any, NoReturn, Optional
+from typing import Any, Callable, Coroutine, NoReturn, Optional
 
 import terminology as tmg
 

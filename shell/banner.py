@@ -2,11 +2,10 @@ import asyncio as aio
 import cmd
 import os
 from argparse import ArgumentParser, Namespace
-from collections.abc import Callable, Coroutine
 from contextlib import asynccontextmanager
 from sys import stdin, stdout
 from textwrap import dedent
-from typing import NoReturn, Optional, TextIO, TypeVar
+from typing import Callable, Coroutine, NoReturn, Optional, TextIO, TypeVar
 
 import terminology as tmg
 
