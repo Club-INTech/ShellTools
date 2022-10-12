@@ -1,11 +1,13 @@
+mock_serial
+pandas
+pynput
 pyserial
+terminology
+
 pytest
 pytest-asyncio
 pytest-timeout
-mock-serial
-pandas
-terminology
-alive-progress
+
 sphinx
 sphinx-markdown-builder
 
