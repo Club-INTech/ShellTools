@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 from functools import partial
 from queue import Queue
 from sys import stdin, stdout
-from typing import Callable, Coroutine, TextIO, TypeVar
+from typing import Callable, Coroutine, List, TextIO, TypeVar
 
 import pynput
 import terminology as tmg
@@ -38,6 +38,7 @@ class Shell(cmd.Cmd):
             ostream, use_rawinput=self.__use_rawinput, modifier=tmg.in_yellow
         )
         self.__prompt = prompt
+        self.__running_tasks: List[aio.Task] = []
 
         super().__init__(stdin=istream, stdout=self.__ostream)
 
@@ -78,6 +79,11 @@ class Shell(cmd.Cmd):
         self.__continue = True
         await self.__to_thread(self.cmdloop)
         self.log_status("Exiting the shell...", regenerate_prompt=False)
+        for task in self.__running_tasks:
+            task.cancel()
+
+        # Yield to scheduler so running tasks can handle cancellation properly
+        await aio.sleep(0)
 
     def create_task(
         self, coro: Coroutine, cleanup_callback: Callable[[], None] = lambda: None
@@ -162,6 +168,7 @@ class Shell(cmd.Cmd):
         task.add_done_callback(
             partial(self.__finalize_task, cleanup_callback=cleanup_callback)
         )
+        self.__running_tasks.append(task)
 
     def __finalize_task(
         self, task: aio.Task, cleanup_callback: Callable[[], None] = lambda: None
@@ -172,6 +179,7 @@ class Shell(cmd.Cmd):
         """
         try:
             cleanup_callback()
+            self.__running_tasks.remove(task)
             e = task.exception()
             if e is not None:
                 raise e

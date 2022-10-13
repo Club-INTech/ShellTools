@@ -16,6 +16,7 @@ from ..utility.match import Match
 class MockShell(Shell):
     def __init__(self, *args, **kwargs):
         self.x = 0
+        self.cancelled = False
         super().__init__(*args, **kwargs)
 
     @command()
@@ -73,6 +74,14 @@ class MockShell(Shell):
         Print an error
         """
         raise ShellError("Oops")
+
+    @command()
+    async def do_freeze(self):
+        while True:
+            try:
+                await aio.sleep(0)
+            except (aio.CancelledError):
+                self.cancelled = True
 
     @command()
     async def do_banner(self):
@@ -191,3 +200,13 @@ async def test_(mock_shell, mock_stdin, mock_stdout):
     await mock_shell.run()
 
     assert mock_shell.x == n
+
+
+@pytest.mark.asyncio
+async def test_cancel_tasks_on_exit(mock_shell, mock_stdin):
+    mock_stdin.write("freeze\nEOF\n")
+    mock_stdin.seek(0)
+
+    await mock_shell.run()
+
+    assert mock_shell.cancelled == True
