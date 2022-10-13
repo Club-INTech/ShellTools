@@ -4,7 +4,7 @@ else
   PYTHON_EXECUTABLE=python3
 fi
 
-$1 -m venv venv
+$PYTHON_EXECUTABLE -m venv venv
 source venv/bin/activate
 python -m pip install cmakelang
 python -m pip install -r requirements.txt
