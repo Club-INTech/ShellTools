@@ -19,7 +19,7 @@ class MockShell(Shell):
         super().__init__(*args, **kwargs)
 
     @command()
-    async def do_increment(self):
+    def do_increment(self):
         """
         Increment once
         """
@@ -27,14 +27,14 @@ class MockShell(Shell):
 
     @command()
     @argument("n", type=int)
-    async def do_increment_by(self, n):
+    def do_increment_by(self, n):
         """
         Increment n times
         """
         self.x += n
 
     @command()
-    async def do_alert(self):
+    def do_alert(self):
         """
         Print some alerts
         """
@@ -42,7 +42,7 @@ class MockShell(Shell):
             self.log("alert")
 
     @command()
-    async def do_big_alert(self):
+    def do_big_alert(self):
         """
         Print many alerts
         """
@@ -61,14 +61,14 @@ class MockShell(Shell):
         self.log("alert3")
 
     @command()
-    async def do_panic(self):
+    def do_panic(self):
         """
         Exit in panic
         """
         raise Exception("I panicked")
 
     @command()
-    async def do_error(self):
+    def do_error(self):
         """
         Print an error
         """

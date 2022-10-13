@@ -107,7 +107,6 @@ class _RemoteProcess:
             timeout=SERIAL_TIMEOUT_S,
         )
 
-        self.__response_received_condition = aio.Condition()
         self.__dispatcher.replace(
             reply_key, lambda reply: aio.create_task(self.__reply_callback(reply))
         )
@@ -123,6 +122,7 @@ class _RemoteProcess:
         Receive request from the remote device and handle command from the control pipe
         This coroutine start two other coroutines (`__handle_tx` and `__handle_rx`) which can only finish when an exception is raised by either or both of them. When it happens, those exceptions are sent to main process through the pipe and any coroutine that did not throw is cancelled, then the `__start` coroutine finishes.
         """
+        self.__response_received_condition = aio.Condition()
         loop = aio.get_event_loop()
         handle_tx, handle_rx = loop.create_task(self.__handle_tx()), loop.create_task(
             self.__handle_rx()

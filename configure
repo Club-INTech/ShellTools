@@ -1,4 +1,10 @@
-python3 -m venv venv
+if [ $# -eq 1 ]; then
+  PYTHON_EXECUTABLE=$1
+else
+  PYTHON_EXECUTABLE=python3
+fi
+
+$1 -m venv venv
 source venv/bin/activate
-python3 -m pip install cmakelang
-python3 -m pip install -r requirements.txt
+python -m pip install cmakelang
+python -m pip install -r requirements.txt

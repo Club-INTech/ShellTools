@@ -104,11 +104,12 @@ class _Wrapper:
         If `is_blocking` is `True`, the thread reading the standard input will block until the command is done.
         When the command is done, `cleanup` will be called.
         """
+        cleanup_callback = lambda: cleanup(extra_parameters)
+
         try:
             result = self.__f(
                 shell, **vars(self.parser.parse(shell, line)), **extra_parameters
             )
-            cleanup_callback = lambda: cleanup(extra_parameters)
             if self.is_async:
                 if is_blocking:
                     done_event = threading.Event()
@@ -120,6 +121,9 @@ class _Wrapper:
                     shell.create_task(result, cleanup_callback)
         except SystemExit:
             pass
+        finally:
+            if not self.is_async:
+                cleanup_callback()
 
         return True
 

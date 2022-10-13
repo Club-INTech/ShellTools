@@ -76,7 +76,7 @@ class Shell(cmd.Cmd):
         """
         self.__loop = aio.get_event_loop()
         self.__continue = True
-        await aio.to_thread(self.cmdloop)
+        await self.__to_thread(self.cmdloop)
         self.log_status("Exiting the shell...", regenerate_prompt=False)
 
     def create_task(
@@ -137,6 +137,19 @@ class Shell(cmd.Cmd):
 
         stop_event.set()
         await update_banner_task
+
+    async def __to_thread(self, callback: Callable[[], None]):
+        """
+        Reimplement the behavior of `asyncio.to_thread` (which is not available for <3.9)
+        """
+
+        thread = threading.Thread(target=callback)
+        thread.start()
+
+        while thread.is_alive():
+            await aio.sleep(0)
+
+        thread.join()
 
     def __create_task(
         self, coro: Coroutine, cleanup_callback: Callable[[], None] = lambda: None
