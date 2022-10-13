@@ -107,18 +107,26 @@ class _Wrapper:
         cleanup_callback = lambda: cleanup(extra_parameters)
 
         try:
-            result = self.__f(
-                shell, **vars(self.parser.parse(shell, line)), **extra_parameters
-            )
             if self.is_async:
+                coro = self.__f(
+                    shell, **vars(self.parser.parse(shell, line)), **extra_parameters
+                )
                 if is_blocking:
                     done_event = threading.Event()
                     shell.create_task(
-                        _run_then_notify(result, done_event), cleanup_callback
+                        _run_then_notify(coro, done_event), cleanup_callback
                     )
                     done_event.wait()
                 else:
-                    shell.create_task(result, cleanup_callback)
+                    shell.create_task(coro, cleanup_callback)
+            else:
+                shell.call_soon(
+                    self.__f,
+                    shell,
+                    **vars(self.parser.parse(shell, line)),
+                    **extra_parameters,
+                    cleanup_callback=cleanup_callback,
+                )
         except SystemExit:
             pass
         finally:

@@ -74,30 +74,49 @@ class Shell(cmd.Cmd):
     async def run(self) -> None:
         """
         Start a shell session asynchronously
+        When the user decides to exit the shell, every running task will be cancelled, and the shell will wait for them to terminate.
         """
         self.__loop = aio.get_event_loop()
         self.__continue = True
         await self.__to_thread(self.cmdloop)
+
         self.log_status("Exiting the shell...", regenerate_prompt=False)
 
         for task in self.__running_tasks:
             task.cancel()
 
-        # Yield to scheduler so other tasks may handle cancellation properly
-        await aio.sleep(0)
+        while self.__running_tasks != []:
+            await aio.sleep(0)
+
+    def call_soon(
+        self,
+        f: Callable,
+        *args,
+        cleanup_callback: Callable[[], None] = lambda: None,
+        **kwargs,
+    ) -> None:
+        async def impl(f, *args, **kwargs):
+            f(*args, **kwargs)
+
+        self.create_task(impl(f, *args, **kwargs), cleanup_callback)
 
     def create_task(
         self, coro: Coroutine, cleanup_callback: Callable[[], None] = lambda: None
-    ) -> bool:
+    ) -> None:
         """
         Schedule a coroutine to be carried out
         This method is thread-safe. This function is meant to schedule commands to be done. Thus, if the shell is stopping, this method will have no effect.
         A cleanup callback can be provided, which will be invoked when the task is done.
+        This method make sure the provided coroutine is given the chance to run at least once before another command is processed. This way, the coroutine will not be cancelled by an EOF or any other command that terminates the shell without being given the chance to handle the cancellation.
         """
         if not self.__continue:
-            return True
-        self.__loop.call_soon_threadsafe(self.__create_task, coro, cleanup_callback)
-        return False
+            return
+
+        task_running_event = threading.Event()
+        self.__loop.call_soon_threadsafe(
+            self.__create_task, coro, cleanup_callback, task_running_event
+        )
+        task_running_event.wait()
 
     def log(self, *args, **kwargs) -> None:
         """
@@ -159,13 +178,21 @@ class Shell(cmd.Cmd):
         thread.join()
 
     def __create_task(
-        self, coro: Coroutine, cleanup_callback: Callable[[], None] = lambda: None
+        self,
+        coro: Coroutine,
+        cleanup_callback: Callable[[], None],
+        event: threading.Event,
     ):
         """
         Schedule a coroutine to be carried out
         This method is not thread-safe and should only be called through `create_task`.
         """
-        task = self.__loop.create_task(coro)
+
+        async def impl(coro, event):
+            event.set()
+            await coro
+
+        task = self.__loop.create_task(impl(coro, event))
         task.add_done_callback(
             partial(self.__finalize_task, cleanup_callback=cleanup_callback)
         )
