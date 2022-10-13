@@ -79,10 +79,11 @@ class Shell(cmd.Cmd):
         self.__continue = True
         await self.__to_thread(self.cmdloop)
         self.log_status("Exiting the shell...", regenerate_prompt=False)
+
         for task in self.__running_tasks:
             task.cancel()
 
-        # Yield to scheduler so running tasks can handle cancellation properly
+        # Yield to scheduler so other tasks may handle cancellation properly
         await aio.sleep(0)
 
     def create_task(

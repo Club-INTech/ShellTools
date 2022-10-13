@@ -82,6 +82,7 @@ class MockShell(Shell):
                 await aio.sleep(0)
             except (aio.CancelledError):
                 self.cancelled = True
+                return
 
     @command()
     async def do_banner(self):

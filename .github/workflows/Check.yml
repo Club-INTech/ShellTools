@@ -9,4 +9,4 @@ jobs:
     - run: ./configure
     - uses: GabrielBB/xvfb-action@v1
       with:
-        run: ./check
+        run: ./check --timeout 3
