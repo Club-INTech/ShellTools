@@ -214,6 +214,10 @@ class Shell(cmd.Cmd):
         try:
             cleanup_callback()
             self.__running_tasks.remove(task)
+
+            if task.cancelled():
+                return
+
             e = task.exception()
             if e is not None:
                 raise e
