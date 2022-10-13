@@ -29,6 +29,9 @@ def command(capture_keyboard: Optional[str] = None) -> Callable:
     def startup(obj, line, wrapper):
         nonlocal capture_keyboard
 
+        if not obj.is_running:
+            return True
+
         extra_parameters = {}
         is_blocking = False
 

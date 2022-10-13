@@ -61,8 +61,10 @@ class Shell(cmd.Cmd):
         Exit the shell if needed
         It overrides the base class method of the same name. It allows to leave the shell whatever the input line might be.
         """
+        if not self.__continue:
+            return True
+
         self.log_error("`" + tmg.in_bold(line.split()[0]) + "` is not a command")
-        return not self.__continue
 
     def do_EOF(self, _) -> bool:
         """
@@ -88,6 +90,13 @@ class Shell(cmd.Cmd):
         while self.__running_tasks != []:
             await aio.sleep(0)
 
+    @property
+    def is_running(self) -> bool:
+        """
+        Indicate if the shell is not terminated or in termination
+        """
+        return self.__continue
+
     def call_soon(
         self,
         f: Callable,
@@ -109,9 +118,6 @@ class Shell(cmd.Cmd):
         A cleanup callback can be provided, which will be invoked when the task is done.
         This method make sure the provided coroutine is given the chance to run at least once before another command is processed. This way, the coroutine will not be cancelled by an EOF or any other command that terminates the shell without being given the chance to handle the cancellation.
         """
-        if not self.__continue:
-            return
-
         task_running_event = threading.Event()
         self.__loop.call_soon_threadsafe(
             self.__create_task, coro, cleanup_callback, task_running_event
