@@ -22,6 +22,8 @@ Action requests are send to the target through the `Remote.call` method.
 response = await remote.call(key, args...)
 ```
 
+## `remote` API
+
 
 ### _class_ remote.remote.Remote(port, dispatcher, reply_key)
 Handles a serial communication stream with a remote device

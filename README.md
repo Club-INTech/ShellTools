@@ -51,25 +51,13 @@ sudo apt install ccache
     * [Display banners under the prompt](shell/README.md#display-banners-under-the-prompt)
 
 
-        * [`KeyboardListener`](shell/README.md#shell.shell.KeyboardListener)
-
-
-            * [`KeyboardListener.get()`](shell/README.md#shell.shell.KeyboardListener.get)
-
-
-            * [`KeyboardListener.start()`](shell/README.md#shell.shell.KeyboardListener.start)
-
-
-            * [`KeyboardListener.stop()`](shell/README.md#shell.shell.KeyboardListener.stop)
+    * [`shell` API](shell/README.md#module-shell.shell)
 
 
         * [`Shell`](shell/README.md#shell.shell.Shell)
 
 
             * [`Shell.banner()`](shell/README.md#shell.shell.Shell.banner)
-
-
-            * [`Shell.call_soon()`](shell/README.md#shell.shell.Shell.call_soon)
 
 
             * [`Shell.create_task()`](shell/README.md#shell.shell.Shell.create_task)
@@ -108,16 +96,19 @@ sudo apt install ccache
         * [`ShellError`](shell/README.md#shell.shell.ShellError)
 
 
+    * [`command` API](shell/README.md#module-shell.command)
+
+
         * [`argument()`](shell/README.md#shell.command.argument)
 
 
         * [`command()`](shell/README.md#shell.command.command)
 
 
+    * [`banner` API](shell/README.md#module-shell.banner)
+
+
         * [`BarSpinner`](shell/README.md#shell.banner.BarSpinner)
-
-
-            * [`BarSpinner.PATTERN`](shell/README.md#shell.banner.BarSpinner.PATTERN)
 
 
         * [`ProgressBar`](shell/README.md#shell.banner.ProgressBar)
@@ -142,6 +133,9 @@ sudo apt install ccache
 
 
     * [Sending an action request to the target](remote/README.md#sending-an-action-request-to-the-target)
+
+
+    * [`remote` API](remote/README.md#module-remote.remote)
 
 
         * [`Remote`](remote/README.md#remote.remote.Remote)

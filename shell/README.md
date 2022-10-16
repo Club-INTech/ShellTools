@@ -100,20 +100,7 @@ class MyShell(Shell):
             await asyncio.sleep(3)
 ```
 
-
-### _class_ shell.shell.KeyboardListener()
-
-#### _async_ get()
-Wait for a keyboard event
-The return value has the format `(is_pressed, key)` with `is_pressed` equaling `True` if the event is a key press (otherwise, it is a key release) and `key` the `pynput.keyboard.Key` object associated with the pressed / released key.
-
-
-#### start()
-Start listening to the keyboard
-
-
-#### stop()
-Stop listening to the keyboard
+## `shell` API
 
 
 ### _class_ shell.shell.Shell(prompt=DEFAULT_PROMPT, istream=stdin, ostream=stdout)
@@ -122,8 +109,6 @@ Stop listening to the keyboard
 Display a banner under the prompt
 Only one banner can be displayed at a time.
 
-
-#### call_soon(f, \*args, cleanup_callback=lambda : ..., \*\*kwargs)
 
 #### create_task(coro, cleanup_callback=lambda : ...)
 Schedule a coroutine to be carried out
@@ -180,6 +165,8 @@ Shadows the `use_rawinput` class attribute to make it instance-bound.
 Used to signal a recoverable error to the shell
 When caught, the shell is not interrupted contrary to the other kind of exception.
 
+## `command` API
+
 
 ### shell.command.argument(\*args, \*\*kwargs)
 Provide an argument specification
@@ -191,13 +178,13 @@ Make a command compatible with the underlying `cmd.Cmd` class
 It should only be used on methods of a class derived from `Shell` whose identifiers begin with `do_`.
 The command can choose to capture keyboard input with the parameter `capture_keyboard`. Its value should be the name of the command parameter which will receive the keyboard listener.
 
+## `banner` API
+
 
 ### _class_ shell.banner.BarSpinner(text='', modifier=lambda x: ...)
 Preview :
 `| Spinning... |▅▃▁▇`
 
-
-#### PATTERN(_ = '▁▂▃▄▅▆▇█_ )
 
 ### _class_ shell.banner.ProgressBar(text='', modifier=lambda x: ..., bg_modifier_when_full=lambda x: ...)
 Preview :

@@ -26,5 +26,8 @@ Action requests are send to the target through the ``Remote.call`` method.
 
   response = await remote.call(key, args...)
 
+``remote`` API
+--------------
+
 .. automodule:: remote.remote
   :members:
