@@ -26,7 +26,7 @@ echo -e "\e[1;${COLOR}m-- GIT HOOK : run tests with pytest --\e[1;0m"
 
 echo -e "\e[1;${COLOR}m-- GIT HOOK : build doc with sphinx --\e[1;0m"
 doc/build || exit 1
-git add doc
+git add **/*.md
 
 for FILE in ${STAGGED_FILES}; do
   git add $FILE

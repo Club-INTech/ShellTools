@@ -68,6 +68,7 @@ class ProgressBar:
 class TwoWayBar:
     """
     Preview :
+
     ``| Hello... |██████████████████████████████████████████████████████████``
 
     ...

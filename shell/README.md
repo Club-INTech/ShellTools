@@ -197,6 +197,7 @@ Current progress in percentage
 
 ### _class_ shell.banner.TwoWayBar(text='', modifier=lambda x: ..., bg_modifier=lambda x: ...)
 Preview :
+
 `| Hello... |██████████████████████████████████████████████████████████`
 
 …
