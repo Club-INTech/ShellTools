@@ -9,7 +9,7 @@ Building a basic shell
 Here is an example of a simple shell:
 
 .. literalinclude:: ../../tests/test_snippet.py
-   :lines: 6-27 
+   :lines: 11-32 
 
 The syntax for the command themselves is simillar to the one from the `cmd <https://docs.python.org/3/library/cmd.html>`_ library, but lots of features are differents:
 
@@ -41,7 +41,7 @@ Capturing the keyboard input
 Instead of receiving command from the standard input, it is possible of directly capture input form keyboard.
 
 .. literalinclude:: ../../tests/test_snippet.py
-  :lines: 6-8, 28-40 
+  :lines: 11-13, 32-45 
 
 Access to standard input is restored when the command is over.
 
@@ -51,4 +51,4 @@ Display banners under the prompt
 It is possible to display one-line animations under the prompt like loading bars or spinners for visual purpose.
 
 .. literalinclude:: ../../tests/test_snippet.py
-  :lines: 6-8, 41-48
+  :lines: 11-13, 46-53

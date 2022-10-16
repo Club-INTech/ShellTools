@@ -7,11 +7,6 @@ The `shell` package provides several utilities for building your own CLI. Define
 Here is an example of a simple shell:
 
 ```default
-from ..shell import *
-from ..shell.banner import *
-from ..shell.command import argument, command
-
-
 class MyShell(Shell):
     def __init__(self, *args, **kwargs):
         super().__init__(self, *args, **kwargs)
@@ -29,6 +24,11 @@ class MyShell(Shell):
     @argument("n", type=int)
     async def do_nprint(self, msg, n):
         """
+        Print `n` time a message with a 1 second delay in-between
+        """
+        for i in range(n):
+            self.log_status(msg)
+            await asyncio.sleep(1)
 ```
 
 The syntax for the command themselves is simillar to the one from the [cmd](https://docs.python.org/3/library/cmd.html) library, but lots of features are differents:
@@ -61,13 +61,9 @@ When the user wish to see more information for a given command, the docstring of
 Instead of receiving command from the standard input, it is possible of directly capture input form keyboard.
 
 ```default
-from ..shell import *
-from ..shell.banner import *
-from ..shell.command import argument, command
-        Print `n` time a message with a 1 second delay in-between
-        """
-        for i in range(n):
-            self.log_status(msg)
+class MyShell(Shell):
+    def __init__(self, *args, **kwargs):
+        super().__init__(self, *args, **kwargs)
             await asyncio.sleep(1)
 
     @command(capture_keyboard="listener")
@@ -77,6 +73,11 @@ from ..shell.command import argument, command
         """
         while True:
             event_key = await listener.get()
+
+            if event_key[0]:
+                if event_key[1] == Key.esc:
+                    return
+                print(repr(event_key[1]))
 ```
 
 Access to standard input is restored when the command is over.
@@ -86,15 +87,15 @@ Access to standard input is restored when the command is over.
 It is possible to display one-line animations under the prompt like loading bars or spinners for visual purpose.
 
 ```default
-from ..shell import *
-from ..shell.banner import *
-from ..shell.command import argument, command
-
-            if event_key[0]:
-                if event_key[1] == Key.esc:
-                    return
-                print(repr(event_key[1]))
+class MyShell(Shell):
+    def __init__(self, *args, **kwargs):
+        super().__init__(self, *args, **kwargs)
 
     @command()
     async def do_show_banner(self):
+        """
+        Print a funky banner for 3 seconds
+        """
+        async with self.banner(BarSpinner("Spinning..."), refresh_delay_s=60e-3):
+            await asyncio.sleep(3)
 ```
