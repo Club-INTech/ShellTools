@@ -39,6 +39,7 @@ class Shell(cmd.Cmd):
         )
         self.__prompt = prompt
         self.__running_tasks: List[aio.Task] = []
+        self.__continue = False
 
         super().__init__(stdin=istream, stdout=self.__ostream)
 
@@ -71,6 +72,7 @@ class Shell(cmd.Cmd):
         Exit the shell
         It is invoked when an end-of-file is received
         """
+        self.__continue = False
         return True
 
     async def run(self) -> None:

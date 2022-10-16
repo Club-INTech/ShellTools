@@ -1,20 +1,16 @@
 # ShellTools
 
-## Quickly build command line interface to operate a remote target that uses [Unpadded](https://github.com/StarQTius/Unpadded) over serial
+Quickly build command line interface to operate a remote target that uses [Unpadded](https://github.com/StarQTius/Unpadded) over serial
 
-With this package, you can :
+## Installation
 
+Add this repository as a submodule of your project.
 
-* Build an asynchronous shell which handles synchronized output
+Install the Python dependencies from `requirements.txt`.
 
+If you want a taste of the features provided by the `shell` package, you can run the demo shell.
 
-* Send and receive action requests from a remote target through serial communication
-
-
-* Track position data and process them
-
-
-* Display asynchronous animations under your shell prompt
+[Unpadded](https://github.com/StarQTius/Unpadded) will require [ccache](https://ccache.dev/) to run. Install it from your packet manager (e.g. Aptitude).
 
 
 * [Create an asynchronous command line interface with the Shell class](shell/README.md)
