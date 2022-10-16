@@ -10,7 +10,7 @@ from typing import List
 import unpadded as upd
 from pandas import DataFrame
 
-from ..annotation import KeyLike
+from annotation import KeyLike
 
 WRITE_MEASURE_REFRESH_DELAY_S = 1e-3
 

@@ -99,3 +99,135 @@ class MyShell(Shell):
         async with self.banner(BarSpinner("Spinning..."), refresh_delay_s=60e-3):
             await asyncio.sleep(3)
 ```
+
+Shell interface
+
+
+### _class_ shell.shell.KeyboardListener()
+
+#### _async_ get()
+Wait for a keyboard event
+The return value has the format (is_pressed, key) with is_pressed equaling True if the event is a key press (otherwise, it is a key release) and key the pynput.keyboard.Key object associated with the pressed / released key.
+
+
+#### start()
+Start listening to the keyboard
+
+
+#### stop()
+Stop listening to the keyboard
+
+
+### _class_ shell.shell.Shell(prompt: str = '[shell] > ', istream: ~typing.TextIO = <_io.TextIOWrapper name='<stdin>' mode='r' encoding='utf-8'>, ostream: ~typing.TextIO = <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>)
+
+#### banner(banner: str, refresh_delay_s: int)
+Display a banner under the prompt
+Only one banner can be displayed at a time.
+
+
+#### call_soon(f: ~typing.Callable, \*args, cleanup_callback: ~typing.Callable[[], None] = <function Shell.<lambda>>, \*\*kwargs)
+
+#### create_task(coro: ~typing.Coroutine, cleanup_callback: ~typing.Callable[[], None] = <function Shell.<lambda>>)
+Schedule a coroutine to be carried out
+This method is thread-safe. This function is meant to schedule commands to be done. Thus, if the shell is stopping, this method will have no effect.
+A cleanup callback can be provided, which will be invoked when the task is done.
+This method make sure the provided coroutine is given the chance to run at least once before another command is processed. This way, the coroutine will not be cancelled by an EOF or any other command that terminates the shell without being given the chance to handle the cancellation.
+
+
+#### default(line)
+Exit the shell if needed
+It overrides the base class method of the same name. It allows to leave the shell whatever the input line might be.
+
+
+#### do_EOF(_)
+Exit the shell
+It is invoked when an end-of-file is received
+
+
+#### _property_ is_running(_: boo_ )
+Indicate if the shell is not terminated or in termination
+
+
+#### log(\*args, \*\*kwargs)
+Log a message of any choosen style
+args and kwargs are forwarded to SynchronizedOStream.log.
+
+
+#### log_error(msg: str, \*args, \*\*kwargs)
+Log an error
+
+
+#### log_help(msg: str, \*args, \*\*kwargs)
+Log a help message
+
+
+#### log_status(msg: str, \*args, \*\*kwargs)
+Log a status message
+
+
+#### _property_ prompt()
+Shadows the prompt class attribute to make it instance-bound.
+
+
+#### _async_ run()
+Start a shell session asynchronously
+When the user decides to exit the shell, every running task will be cancelled, and the shell will wait for them to terminate.
+
+
+#### _property_ use_rawinput()
+Shadows the use_rawinput class attribute to make it instance-bound.
+
+
+### _exception_ shell.shell.ShellError(message: Optional[str] = None)
+Used to signal a recoverable error to the shell
+When caught, the shell is not interrupted contrary to the other kind of exception.
+
+
+### shell.command.argument(\*args, \*\*kwargs)
+Provide an argument specification
+This decorator behaves like the ArgumentParser.add_argument method. However, the result from the call of ArgumentParser.parse_args is unpacked to the command.
+
+
+### shell.command.command(capture_keyboard: Optional[str] = None)
+Make a command compatible with the underlying cmd.Cmd class
+It should only be used on methods of a class derived from Shell whose identifiers begin with ‘
+
+```
+do_
+```
+
+’.
+The command can choose to capture keyboard input with the parameter capture_keyboard. Its value should be the name of the command parameter which will receive the keyboard listener.
+
+
+### _class_ shell.banner.BarSpinner(text: str = '', modifier: ~typing.Callable[[str], str] = <function BarSpinner.<lambda>>)
+Preview :
+| Spinning… |▅▃▁▇
+
+
+#### PATTERN(_ = '▁▂▃▄▅▆▇█_ )
+
+### _class_ shell.banner.ProgressBar(text: str = '', modifier: ~typing.Callable[[str], str] = <function ProgressBar.<lambda>>, bg_modifier_when_full: ~typing.Callable[[str], str] = <function ProgressBar.<lambda>>)
+Preview :
+| Hi ! |██████████████████████████████████████████
+
+
+#### _property_ progress(_: floa_ )
+Current progress in percentage
+
+
+### _class_ shell.banner.TwoWayBar(text: str = '', modifier: ~typing.Callable[[str], str] = <function TwoWayBar.<lambda>>, bg_modifier: ~typing.Callable[[str], str] = <function TwoWayBar.<lambda>>)
+Preview :
+| Hello… 
+
+```
+|
+```
+
+██████████████████████████████████████████████████████████
+…
+| Hello… |                                                          ████████████████████████████████████████
+
+
+#### _property_ progress(_: floa_ )
+Current progress in percentage

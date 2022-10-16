@@ -52,3 +52,15 @@ It is possible to display one-line animations under the prompt like loading bars
 
 .. literalinclude:: ../../tests/test_snippet.py
   :lines: 11-13, 46-53
+
+.. automodule:: shell.shell
+  :members:
+  :undoc-members:
+
+.. automodule:: shell.command
+  :members:
+  :undoc-members:
+
+.. automodule:: shell.banner
+  :members:
+  :undoc-members:

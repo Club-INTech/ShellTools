@@ -25,3 +25,7 @@ Action requests are send to the target through the ``Remote.call`` method.
 .. code-block:: python
 
   response = await remote.call(key, args...)
+
+.. automodule:: remote.remote
+  :members:
+  :undoc-members:
