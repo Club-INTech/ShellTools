@@ -100,14 +100,12 @@ class MyShell(Shell):
             await asyncio.sleep(3)
 ```
 
-Shell interface
-
 
 ### _class_ shell.shell.KeyboardListener()
 
 #### _async_ get()
 Wait for a keyboard event
-The return value has the format (is_pressed, key) with is_pressed equaling True if the event is a key press (otherwise, it is a key release) and key the pynput.keyboard.Key object associated with the pressed / released key.
+The return value has the format `(is_pressed, key)` with `is_pressed` equaling `True` if the event is a key press (otherwise, it is a key release) and `key` the `pynput.keyboard.Key` object associated with the pressed / released key.
 
 
 #### start()
@@ -118,16 +116,16 @@ Start listening to the keyboard
 Stop listening to the keyboard
 
 
-### _class_ shell.shell.Shell(prompt: str = '[shell] > ', istream: ~typing.TextIO = <_io.TextIOWrapper name='<stdin>' mode='r' encoding='utf-8'>, ostream: ~typing.TextIO = <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>)
+### _class_ shell.shell.Shell(prompt=DEFAULT_PROMPT, istream=stdin, ostream=stdout)
 
-#### banner(banner: str, refresh_delay_s: int)
+#### banner(banner, refresh_delay_s)
 Display a banner under the prompt
 Only one banner can be displayed at a time.
 
 
-#### call_soon(f: ~typing.Callable, \*args, cleanup_callback: ~typing.Callable[[], None] = <function Shell.<lambda>>, \*\*kwargs)
+#### call_soon(f, \*args, cleanup_callback=lambda : ..., \*\*kwargs)
 
-#### create_task(coro: ~typing.Coroutine, cleanup_callback: ~typing.Callable[[], None] = <function Shell.<lambda>>)
+#### create_task(coro, cleanup_callback=lambda : ...)
 Schedule a coroutine to be carried out
 This method is thread-safe. This function is meant to schedule commands to be done. Thus, if the shell is stopping, this method will have no effect.
 A cleanup callback can be provided, which will be invoked when the task is done.
@@ -144,29 +142,29 @@ Exit the shell
 It is invoked when an end-of-file is received
 
 
-#### _property_ is_running(_: boo_ )
+#### _property_ is_running()
 Indicate if the shell is not terminated or in termination
 
 
 #### log(\*args, \*\*kwargs)
 Log a message of any choosen style
-args and kwargs are forwarded to SynchronizedOStream.log.
+`args` and `kwargs` are forwarded to `SynchronizedOStream.log`.
 
 
-#### log_error(msg: str, \*args, \*\*kwargs)
+#### log_error(msg, \*args, \*\*kwargs)
 Log an error
 
 
-#### log_help(msg: str, \*args, \*\*kwargs)
+#### log_help(msg, \*args, \*\*kwargs)
 Log a help message
 
 
-#### log_status(msg: str, \*args, \*\*kwargs)
+#### log_status(msg, \*args, \*\*kwargs)
 Log a status message
 
 
 #### _property_ prompt()
-Shadows the prompt class attribute to make it instance-bound.
+Shadows the `prompt` class attribute to make it instance-bound.
 
 
 #### _async_ run()
@@ -175,59 +173,47 @@ When the user decides to exit the shell, every running task will be cancelled, a
 
 
 #### _property_ use_rawinput()
-Shadows the use_rawinput class attribute to make it instance-bound.
+Shadows the `use_rawinput` class attribute to make it instance-bound.
 
 
-### _exception_ shell.shell.ShellError(message: Optional[str] = None)
+### _exception_ shell.shell.ShellError(message=None)
 Used to signal a recoverable error to the shell
 When caught, the shell is not interrupted contrary to the other kind of exception.
 
 
 ### shell.command.argument(\*args, \*\*kwargs)
 Provide an argument specification
-This decorator behaves like the ArgumentParser.add_argument method. However, the result from the call of ArgumentParser.parse_args is unpacked to the command.
+This decorator behaves like the `ArgumentParser.add_argument` method. However, the result from the call of `ArgumentParser.parse_args` is unpacked to the command.
 
 
-### shell.command.command(capture_keyboard: Optional[str] = None)
-Make a command compatible with the underlying cmd.Cmd class
-It should only be used on methods of a class derived from Shell whose identifiers begin with ‘
-
-```
-do_
-```
-
-’.
-The command can choose to capture keyboard input with the parameter capture_keyboard. Its value should be the name of the command parameter which will receive the keyboard listener.
+### shell.command.command(capture_keyboard=None)
+Make a command compatible with the underlying `cmd.Cmd` class
+It should only be used on methods of a class derived from `Shell` whose identifiers begin with `do_`.
+The command can choose to capture keyboard input with the parameter `capture_keyboard`. Its value should be the name of the command parameter which will receive the keyboard listener.
 
 
-### _class_ shell.banner.BarSpinner(text: str = '', modifier: ~typing.Callable[[str], str] = <function BarSpinner.<lambda>>)
+### _class_ shell.banner.BarSpinner(text='', modifier=lambda x: ...)
 Preview :
-| Spinning… |▅▃▁▇
+`| Spinning... |▅▃▁▇`
 
 
 #### PATTERN(_ = '▁▂▃▄▅▆▇█_ )
 
-### _class_ shell.banner.ProgressBar(text: str = '', modifier: ~typing.Callable[[str], str] = <function ProgressBar.<lambda>>, bg_modifier_when_full: ~typing.Callable[[str], str] = <function ProgressBar.<lambda>>)
+### _class_ shell.banner.ProgressBar(text='', modifier=lambda x: ..., bg_modifier_when_full=lambda x: ...)
 Preview :
-| Hi ! |██████████████████████████████████████████
+`| Hi ! |██████████████████████████████████████████`
 
 
-#### _property_ progress(_: floa_ )
+#### _property_ progress()
 Current progress in percentage
 
 
-### _class_ shell.banner.TwoWayBar(text: str = '', modifier: ~typing.Callable[[str], str] = <function TwoWayBar.<lambda>>, bg_modifier: ~typing.Callable[[str], str] = <function TwoWayBar.<lambda>>)
+### _class_ shell.banner.TwoWayBar(text='', modifier=lambda x: ..., bg_modifier=lambda x: ...)
 Preview :
-| Hello… 
-
-```
-|
-```
-
-██████████████████████████████████████████████████████████
+`| Hello... |██████████████████████████████████████████████████████████`
 …
-| Hello… |                                                          ████████████████████████████████████████
+`| Hello... |                                                          ████████████████████████████████████████`
 
 
-#### _property_ progress(_: floa_ )
+#### _property_ progress()
 Current progress in percentage

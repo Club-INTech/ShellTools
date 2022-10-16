@@ -22,13 +22,11 @@ Action requests are send to the target through the `Remote.call` method.
 response = await remote.call(key, args...)
 ```
 
-Remote communication interface
 
-
-### _class_ remote.remote.Remote(port: str, dispatcher: Any, reply_key: Any)
+### _class_ remote.remote.Remote(port, dispatcher, reply_key)
 Handles a serial communication stream with a remote device
 
 
-#### new_request(payload: bytes)
+#### new_request(payload)
 Have the process send a new request
 Each request is given an UID which is used to keep track of the order of creation. The newest request are resolved first by the remote device.

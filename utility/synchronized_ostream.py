@@ -27,7 +27,7 @@ class SynchronizedOStream(TextIO):
     def __enter__(self) -> "SynchronizedOStream":
         """
         Acquire the stream
-        Call to methods other than `__exit__` will not have any effect on the lock after entering the context (for example, `write` will not try to release the stream).
+        Call to methods other than ``__exit__`` will not have any effect on the lock after entering the context (for example, ``write`` will not try to release the stream).
         """
         self.__lock.acquire()
         self.__in_context = True
@@ -91,7 +91,7 @@ class SynchronizedOStream(TextIO):
     def write(self, msg: str) -> int:
         """
         Write a string to the wrapped output stream
-        If this stream has not been locked yet with the context manager, the lock is released if and only if `msg` is newline-terminated or is empty.
+        If this stream has not been locked yet with the context manager, the lock is released if and only if ``msg`` is newline-terminated or is empty.
         """
 
         if msg == "":
@@ -109,7 +109,7 @@ class SynchronizedOStream(TextIO):
 
     def flush(self) -> None:
         """
-        Call the underlying stream `flush` method
+        Call the underlying stream ``flush`` method
         """
         return self.__ostream.flush()
 
@@ -145,7 +145,7 @@ class SynchronizedOStream(TextIO):
     ) -> None:
         """
         Add a banner to display, update its output regulary and remove it
-        The banner update can be stopped by setting `stop_event`.
+        The banner update can be stopped by setting ``stop_event``.
         """
         self.__banners.append(banner)
 
@@ -200,7 +200,7 @@ def _linewiper(msg: Optional[str] = None) -> str:
 def _below(msg: str = "", position: int = 0) -> str:
     """
     Write a message below the cursor and go back up at the beginning of the line
-    A message can be printed several lines below with the `position` parameter.
+    A message can be printed several lines below with the ``position`` parameter.
     """
     return (
         "\n" * (position + 1)

@@ -1,7 +1,3 @@
-"""
-Pattern matching utility
-"""
-
 from typing import Any, Dict
 
 
@@ -9,8 +5,11 @@ class Match:
     """
     Create a pattern matcher
     Following syntaxes are valid :
-      Match(value) & {(patterns : objects)...}
-      (Match() & {(patterns : objects)...})(value)
+    .. code-block:: python
+
+        Match(value) & {(patterns : objects)...}
+        (Match() & {(patterns : objects)...})(value)
+
     Patterns can be types or values.
     When trying to match the value against a pattern, the following sequence will be applied :
       - First, an attempt will be made to match by value; in that case, the corresponding object will be called if possible on zero parameters

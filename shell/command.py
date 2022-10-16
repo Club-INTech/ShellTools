@@ -14,9 +14,9 @@ KNOWN_COMPATIBLE_TERMINALS = ["xterm"]
 
 def command(capture_keyboard: Optional[str] = None) -> Callable:
     """
-    Make a command compatible with the underlying `cmd.Cmd` class
-    It should only be used on methods of a class derived from `Shell` whose identifiers begin with 'do_'.
-    The command can choose to capture keyboard input with the parameter `capture_keyboard`. Its value should be the name of the command parameter which will receive the keyboard listener.
+    Make a command compatible with the underlying ``cmd.Cmd`` class
+    It should only be used on methods of a class derived from ``Shell`` whose identifiers begin with ``do_``.
+    The command can choose to capture keyboard input with the parameter ``capture_keyboard``. Its value should be the name of the command parameter which will receive the keyboard listener.
     """
 
     def impl(f: Callable) -> Callable[[ShellType, str], bool]:
@@ -65,7 +65,7 @@ def command(capture_keyboard: Optional[str] = None) -> Callable:
 def argument(*args, **kwargs) -> Callable[[Callable], Callable]:
     """
     Provide an argument specification
-    This decorator behaves like the `ArgumentParser.add_argument` method. However, the result from the call of `ArgumentParser.parse_args` is unpacked to the command.
+    This decorator behaves like the ``ArgumentParser.add_argument`` method. However, the result from the call of ``ArgumentParser.parse_args`` is unpacked to the command.
     """
 
     def impl(f):
@@ -103,9 +103,9 @@ class _Wrapper:
     ) -> bool:
         """
         Forward the accumulated CLI argument to the held async function
-        The async function will also be given the `extra_parameters` keyword parameters.
-        If `is_blocking` is `True`, the thread reading the standard input will block until the command is done.
-        When the command is done, `cleanup` will be called.
+        The async function will also be given the ``extra_parameters`` keyword parameters.
+        If ``is_blocking`` is ``True``, the thread reading the standard input will block until the command is done.
+        When the command is done, ``cleanup`` will be called.
         """
         cleanup_callback = lambda: cleanup(extra_parameters)
 
@@ -152,7 +152,7 @@ class _Parser(ArgumentParser):
     def parse(self, shell: Shell, line: str) -> Namespace:
         """
         Parse the argument from a command line
-        Instead of exiting the program, this method will raise a `ShellError()` if the parsing fails.
+        Instead of exiting the program, this method will raise a ``ShellError()`` if the parsing fails.
         """
         self.__shell = shell
         return self.parse_args(line.split())
@@ -187,7 +187,7 @@ class _Parser(ArgumentParser):
 
 async def _run_then_notify(coro: Coroutine, done_event: threading.Event):
     """
-    Await `coro` then notify the caller that `coro` is done through `done_event`
+    Await ``coro`` then notify the caller that ``coro`` is done through ``done_event``
     This function is used to wait the completion of a coroutine from another thread.
     """
     await coro

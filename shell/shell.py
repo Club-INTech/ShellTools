@@ -1,7 +1,3 @@
-"""
-Shell interface
-"""
-
 import asyncio as aio
 import cmd
 import threading
@@ -29,7 +25,7 @@ class Shell(cmd.Cmd):
     ):
         """
         Initialize the base class with IO streams
-        `use_rawinput` will be set to `True` if and only if `istream` is `sys.stdin` and `ostream` is `sys.stdout`.
+        ``use_rawinput`` will be set to ``True`` if and only if ``istream`` is ``sys.stdin`` and ``ostream`` is ``sys.stdout``.
         """
 
         self.__use_rawinput = istream is stdin and ostream is stdout
@@ -46,14 +42,14 @@ class Shell(cmd.Cmd):
     @property
     def prompt(self):
         """
-        Shadows the `prompt` class attribute to make it instance-bound.
+        Shadows the ``prompt`` class attribute to make it instance-bound.
         """
         return "\r" + self.__prompt if self.__use_rawinput else ""
 
     @property
     def use_rawinput(self):
         """
-        Shadows the `use_rawinput` class attribute to make it instance-bound.
+        Shadows the ``use_rawinput`` class attribute to make it instance-bound.
         """
         return self.__use_rawinput
 
@@ -129,7 +125,7 @@ class Shell(cmd.Cmd):
     def log(self, *args, **kwargs) -> None:
         """
         Log a message of any choosen style
-        `args` and `kwargs` are forwarded to `SynchronizedOStream.log`.
+        ``args`` and ``kwargs`` are forwarded to ``SynchronizedOStream.log``.
         """
         self.__ostream.log(*args, **kwargs)
 
@@ -174,7 +170,7 @@ class Shell(cmd.Cmd):
 
     async def __to_thread(self, callback: Callable[[], None]):
         """
-        Reimplement the behavior of `asyncio.to_thread` (which is not available for <3.9)
+        Reimplement the behavior of ``asyncio.to_thread`` (which is not available for <3.9)
         """
 
         thread = threading.Thread(target=callback)
@@ -193,7 +189,7 @@ class Shell(cmd.Cmd):
     ):
         """
         Schedule a coroutine to be carried out
-        This method is not thread-safe and should only be called through `create_task`.
+        This method is not thread-safe and should only be called through ``create_task``.
         """
 
         async def impl(coro, event):
@@ -270,7 +266,7 @@ class KeyboardListener:
     async def get(self):
         """
         Wait for a keyboard event
-        The return value has the format `(is_pressed, key)` with `is_pressed` equaling `True` if the event is a key press (otherwise, it is a key release) and `key` the `pynput.keyboard.Key` object associated with the pressed / released key.
+        The return value has the format ``(is_pressed, key)`` with ``is_pressed`` equaling ``True`` if the event is a key press (otherwise, it is a key release) and ``key`` the ``pynput.keyboard.Key`` object associated with the pressed / released key.
         """
 
         while True:
@@ -281,7 +277,7 @@ class KeyboardListener:
     def __push_pressed(self, key: pynput.keyboard.Key):
         """
         Add a key press event to the queue
-        This method is meant to be invoked from `__pynput_listener`.
+        This method is meant to be invoked from ``__pynput_listener``.
         """
 
         if self.__event_lock.locked():
@@ -293,7 +289,7 @@ class KeyboardListener:
     def __push_released(self, key: pynput.keyboard.Key):
         """
         Add a key release event to the queue
-        This method is meant to be invoked from `__pynput_listener`.
+        This method is meant to be invoked from ``__pynput_listener``.
         """
 
         if self.__event_lock.locked():
@@ -304,7 +300,7 @@ class KeyboardListener:
 
     def __release_lock_later(self):
         """
-        Release the lock on the event callbacks after `KEYBOARD_LISTENER_REFRESH_DELAY_S` seconds
+        Release the lock on the event callbacks after ``KEYBOARD_LISTENER_REFRESH_DELAY_S`` seconds
         This method is used within the event callbacks in order to slow down the arrival rate of the keyboard events.
         """
 

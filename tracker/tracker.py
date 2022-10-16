@@ -1,7 +1,3 @@
-"""
-Encoder state tracking
-"""
-
 import asyncio as aio
 import multiprocessing as mp
 from enum import IntEnum
@@ -27,7 +23,7 @@ class Command(IntEnum):
 class Tracker:
     def __init__(self, client: upd.Client, control_key: KeyLike, report_key: KeyLike):
         """
-        Initialize the report callback in `client`
+        Initialize the report callback in ``client``
         """
 
         self.__client = client
@@ -65,7 +61,7 @@ class Tracker:
     @property
     def data_frame(self) -> DataFrame:
         """
-        Make a `DataFrame` out of all measures reported so far
+        Make a ``DataFrame`` out of all measures reported so far
         """
 
         df = DataFrame(
@@ -126,7 +122,7 @@ class _TrackerContextManager:
 
     async def timeout(self, delay: int) -> DataFrame:
         """
-        Wait until no data has been received for at least `timeout` seconds and return all data that have been received so far
+        Wait until no data has been received for at least ``timeout`` seconds and return all data that have been received so far
         """
         measures_nb = None
         while measures_nb != len(self.__tracker.timestamps):

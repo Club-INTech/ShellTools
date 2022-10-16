@@ -1,7 +1,3 @@
-"""
-Remote communication interface
-"""
-
 import asyncio as aio
 import multiprocessing as mp
 import multiprocessing.connection
@@ -120,7 +116,7 @@ class _RemoteProcess:
     async def __start(self) -> None:
         """
         Receive request from the remote device and handle command from the control pipe
-        This coroutine start two other coroutines (`__handle_tx` and `__handle_rx`) which can only finish when an exception is raised by either or both of them. When it happens, those exceptions are sent to main process through the pipe and any coroutine that did not throw is cancelled, then the `__start` coroutine finishes.
+        This coroutine start two other coroutines (``__handle_tx`` and ``__handle_rx``) which can only finish when an exception is raised by either or both of them. When it happens, those exceptions are sent to main process through the pipe and any coroutine that did not throw is cancelled, then the ``__start`` coroutine finishes.
         """
         self.__response_received_condition = aio.Condition()
         loop = aio.get_event_loop()
@@ -138,7 +134,7 @@ class _RemoteProcess:
     async def __handle_tx(self) -> None:
         """
         Transmit the packets received from the main process want to send to the remote device
-        It is assumed that the remote device can handle only one request at a time. Once a request is sent, the coroutine await for `__reply_callback` to be invoked (which occurs when the response has been received).
+        It is assumed that the remote device can handle only one request at a time. Once a request is sent, the coroutine await for ``__reply_callback`` to be invoked (which occurs when the response has been received).
         """
         while True:
             if self.__pipe.poll():
