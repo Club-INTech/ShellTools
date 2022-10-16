@@ -55,12 +55,9 @@ It is possible to display one-line animations under the prompt like loading bars
 
 .. automodule:: shell.shell
   :members:
-  :undoc-members:
 
 .. automodule:: shell.command
   :members:
-  :undoc-members:
 
 .. automodule:: shell.banner
   :members:
-  :undoc-members:

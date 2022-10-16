@@ -28,4 +28,3 @@ Action requests are send to the target through the ``Remote.call`` method.
 
 .. automodule:: remote.remote
   :members:
-  :undoc-members:
