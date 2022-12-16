@@ -6,20 +6,20 @@ STAGGED_FILES=$(git diff --cached --name-only)
 echo -e "\e[1;${COLOR}m-- GIT HOOK : check annotations with mypy \e[1;0m"
 for FILE in ${STAGGED_FILES}; do
   if [ -f "$FILE" ] && [[ $FILE == *.py ]]; then
-    mypy --ignore-missing-imports $FILE || exit 1
+    venv/bin/python -m mypy --ignore-missing-imports $FILE || exit 1
   fi
 done
 
 echo -e "\e[1;${COLOR}m-- GIT HOOK : format source files with Black --\e[1;0m"
 for FILE in ${STAGGED_FILES}; do
   if [ -f "$FILE" ] && [[ $FILE == *.py ]]; then
-    black $FILE
+    venv/bin/python -m  black $FILE
   fi
 done
 
 echo -e "\e[1;${COLOR}m-- GIT HOOK : format inclusions with isort & autoflake --\e[1;0m"
-autoflake --in-place --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports *.py utility/*.py tests/*.py
-isort .
+venv/bin/python -m autoflake --in-place --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports *.py utility/*.py tests/*.py
+venv/bin/python -m isort .
 
 echo -e "\e[1;${COLOR}m-- GIT HOOK : run tests with pytest --\e[1;0m"
 ./check || exit 1

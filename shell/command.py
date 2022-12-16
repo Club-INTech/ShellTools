@@ -7,6 +7,7 @@ from typing import Any, Callable, Coroutine, Dict, NoReturn, Optional, Union
 
 import terminology as tmg
 
+from .keyboard_listener import KeyboardListener
 from .shell import Shell, ShellType
 
 KNOWN_COMPATIBLE_TERMINALS = ["xterm"]

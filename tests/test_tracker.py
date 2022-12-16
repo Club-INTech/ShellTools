@@ -1,11 +1,12 @@
 import pytest
-import unpadded as upd
+from unpadded import Client # type: ignore
 
-from ..tracker import *
+from tracker import *
+
 from . import test_extension_module as tem  # type: ignore
 
 
-class MockClient(upd.Client):
+class MockClient(Client):
     def __init__(self, dispatcher, trigger, stop, response):
         self.__dispatcher = dispatcher
         self.__trigger = trigger
@@ -17,7 +18,8 @@ class MockClient(upd.Client):
         if payload == self.__trigger:
             assert not self.is_running
             self.is_running = True
-            self.__dispatcher.resolve_completely(self.__response)
+            for b in self.__response:
+                self.__dispatcher.put(b)
         if payload == self.__stop:
             assert self.is_running
             self.is_running = False

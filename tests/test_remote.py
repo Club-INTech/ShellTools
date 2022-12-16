@@ -4,7 +4,8 @@ from multiprocessing import Value
 import pytest
 from mock_serial.pytest import *
 
-from ..remote import *
+from remote import *
+
 from . import test_extension_module as tem  # type: ignore
 
 pytest_plugins = ("pytest_asyncio",)

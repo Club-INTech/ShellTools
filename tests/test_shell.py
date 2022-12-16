@@ -7,10 +7,10 @@ import pytest
 import terminology as tmg
 from pynput.keyboard import Key
 
-from ..shell import *
-from ..shell.banner import *
-from ..shell.command import argument, command
-from ..utility.match import Match
+from shell import *
+from shell.banner import *
+from shell.command import argument, command
+from utility.match import Match
 
 
 class MockShell(Shell):

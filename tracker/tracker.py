@@ -3,7 +3,7 @@ import multiprocessing as mp
 from enum import IntEnum
 from typing import List
 
-import unpadded as upd
+from unpadded import Client # type: ignore
 from pandas import DataFrame
 
 from annotation import KeyLike
@@ -21,7 +21,7 @@ class Command(IntEnum):
 
 
 class Tracker:
-    def __init__(self, client: upd.Client, control_key: KeyLike, report_key: KeyLike):
+    def __init__(self, client: Client, control_key: KeyLike, report_key: KeyLike):
         """
         Initialize the report callback in ``client``
         """

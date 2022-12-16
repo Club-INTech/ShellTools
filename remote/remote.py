@@ -5,7 +5,7 @@ from typing import Any, Optional
 from warnings import warn
 
 import serial as sr
-import unpadded as upd
+from unpadded import Client, PacketStatus # type: ignore
 
 from annotation import DispatcherLike, KeyLike
 from utility.match import Match
@@ -17,7 +17,7 @@ SERIAL_TIMEOUT_S = 500e-3
 HEADER = b"\xff\xff\xff\xff"
 
 
-class Remote(upd.Client):
+class Remote(Client):
     """
     Handles a serial communication stream with a remote device
     """
@@ -170,9 +170,9 @@ class _RemoteProcess:
                 x = self.__serial.read(1)
                 if header_sentinel == 0:
                     Match(self.__dispatcher.put(int.from_bytes(x, "little"))) & {
-                        upd.PacketStatus.DROPPED_PACKET: raise_corrupted_packet,
-                        upd.PacketStatus.RESOLVED_PACKET: check_unloaded_dispatcher,
-                        upd.PacketStatus.LOADING_PACKET: lambda: None,
+                        PacketStatus.DROPPED_PACKET: raise_corrupted_packet,
+                        PacketStatus.RESOLVED_PACKET: check_unloaded_dispatcher,
+                        PacketStatus.LOADING_PACKET: lambda: None,
                     }
                 else:
                     header_sentinel = (

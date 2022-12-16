@@ -3,9 +3,9 @@ import asyncio
 import pytest
 from pynput.keyboard import Key
 
-from ..shell import *
-from ..shell.banner import *
-from ..shell.command import argument, command
+from shell import *
+from shell.banner import *
+from shell.command import argument, command
 
 
 class MyShell(Shell):
