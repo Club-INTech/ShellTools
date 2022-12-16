@@ -7,6 +7,6 @@ jobs:
     - uses: actions/checkout@v2
     - run: sudo apt install ccache
     - run: ./configure
-    - uses: GabrielBB/xvfb-action@v1
+    - uses: GabrielBB/xvfb-action@v1.6
       with:
         run: ./check --timeout 3
