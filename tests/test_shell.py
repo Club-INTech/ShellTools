@@ -5,7 +5,6 @@ from math import sin
 
 import pytest
 import terminology as tmg
-from pynput.keyboard import Key
 
 from shell import *
 from shell.banner import *
@@ -114,6 +113,8 @@ class MockShell(Shell):
 
     @command(capture_keyboard="listener")
     async def do_move_bar(self, listener):
+        from pynput.keyboard import Key
+        
         keep_going = True
 
         async with self.banner(

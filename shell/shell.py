@@ -7,7 +7,6 @@ from queue import Queue
 from sys import stdin, stdout
 from typing import Callable, Coroutine, List, TextIO, TypeVar, Optional
 
-import pynput
 import terminology as tmg
 
 from utility.synchronized_ostream import SynchronizedOStream

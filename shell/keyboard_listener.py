@@ -7,7 +7,6 @@ from queue import Queue
 from sys import stdin, stdout
 from typing import Callable, Coroutine, List, TextIO, TypeVar
 
-import pynput
 import terminology as tmg
 
 from utility.synchronized_ostream import SynchronizedOStream
@@ -17,6 +16,8 @@ KEYBOARD_LISTENER_REFRESH_DELAY_S = 10e-3
 
 class KeyboardListener:
     def __init__(self):
+        import pynput
+        
         self.__pynput_listener = pynput.keyboard.Listener(
             on_press=self.__push_pressed, on_release=self.__push_released, suppress=True
         )
@@ -49,7 +50,7 @@ class KeyboardListener:
                 return self.__event_queue.get_nowait()
             await aio.sleep(0)
 
-    def __push_pressed(self, key: pynput.keyboard.Key):
+    def __push_pressed(self, key):
         """
         Add a key press event to the queue
         This method is meant to be invoked from ``__pynput_listener``.
@@ -61,7 +62,7 @@ class KeyboardListener:
         self.__event_queue.put((True, key))
         self.__release_lock_later()
 
-    def __push_released(self, key: pynput.keyboard.Key):
+    def __push_released(self, key):
         """
         Add a key release event to the queue
         This method is meant to be invoked from ``__pynput_listener``.
