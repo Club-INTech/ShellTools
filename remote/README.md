@@ -8,7 +8,7 @@ First thing first, you must generate the extension module with [Unpadded](https:
 
 ## Setting up the connection to the target
 
-The `Remote` class uses PySerial <https://pyserial.readthedocs.io/en/latest/> to establish a connection to the target. You just need to provide the port to which the target is connected, a dispatcher which will handle the action request from the target and the key of the action used to store action response.
+The `Remote` class uses [PySerial](https://pyserial.readthedocs.io/en/latest/) to establish a connection to the target. You just need to provide the port to which the target is connected, a dispatcher which will handle the action request from the target and the key of the action used to store action response.
 
 ```python
 remote = Remote(port=..., dispatcher=..., reply_key=...)
