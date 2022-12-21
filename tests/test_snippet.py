@@ -1,7 +1,6 @@
 import asyncio
 
 import pytest
-from pynput.keyboard import Key
 
 from shell import *
 from shell.banner import *
@@ -36,6 +35,8 @@ class MyShell(Shell):
         """
         Print the pressed key
         """
+        from pynput.keyboard import Key
+        
         while True:
             event_key = await listener.get()
 
