@@ -25,12 +25,13 @@ response = await remote.call(key, args...)
 ## `remote` API
 
 
-### **class** Remote(port, dispatcher, reply_key)
+### [class]Remote(port, dispatcher, reply_key)
 Handles a serial communication stream with a remote device
 
 
 
-* <u> new_request(payload)</u>
+* **new_request(payload)** 
+
 Have the process send a new request
 
 Each request is given an UID which is used to keep track of the order of creation. The newest request are resolved first by the remote device.

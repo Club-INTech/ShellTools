@@ -103,17 +103,19 @@ It is possible to display one-line animations under the prompt like loading bars
 ## `shell` API
 
 
-### **class** Shell(prompt=DEFAULT_PROMPT, istream=stdin, ostream=stdout)
+### [class]Shell(prompt=DEFAULT_PROMPT, istream=stdin, ostream=stdout)
 
 
-* <u> banner(banner, refresh_delay_s)</u>
+* **banner(banner, refresh_delay_s)** 
+
 Display a banner under the prompt
 
 Only one banner can be displayed at a time.
 
 
 
-* <u> create_task(coro, cleanup_callback=lambda : ...)</u>
+* **create_task(coro, cleanup_callback=lambda : ...)** 
+
 Schedule a coroutine to be carried out
 
 This method is thread-safe. This function is meant to schedule commands to be done. Thus, if the shell is stopping, this method will have no effect.
@@ -124,64 +126,74 @@ This method make sure the provided coroutine is given the chance to run at least
 
 
 
-* <u> default(line)</u>
+* **default(line)** 
+
 Exit the shell if needed
 
 It overrides the base class method of the same name. It allows to leave the shell whatever the input line might be.
 
 
 
-* <u> do_EOF(_)</u>
+* **do_EOF(_)** 
+
 Exit the shell
 
 It is invoked when an end-of-file is received
 
 
 
-* <u> **property** is_running()</u>
+* **[property]is_running()** 
+
 Indicate if the shell is not terminated or in termination
 
 
 
-* <u> log(\*args, \*\*kwargs)</u>
+* **log(\*args, \*\*kwargs)** 
+
 Log a message of any choosen style
 
 `args` and `kwargs` are forwarded to `SynchronizedOStream.log`.
 
 
 
-* <u> log_error(msg, \*args, \*\*kwargs)</u>
+* **log_error(msg, \*args, \*\*kwargs)** 
+
 Log an error
 
 
 
-* <u> log_help(msg, \*args, \*\*kwargs)</u>
+* **log_help(msg, \*args, \*\*kwargs)** 
+
 Log a help message
 
 
 
-* <u> log_status(msg, \*args, \*\*kwargs)</u>
+* **log_status(msg, \*args, \*\*kwargs)** 
+
 Log a status message
 
 
 
-* <u> **property** prompt()</u>
+* **[property]prompt()** 
+
 Shadows the `prompt` class attribute to make it instance-bound.
 
 
 
-* <u> **async** run()</u>
+* **[async]run()** 
+
 Start a shell session asynchronously
 
 When the user decides to exit the shell, every running task will be cancelled, and the shell will wait for them to terminate.
 
 
 
-* <u> **property** use_rawinput()</u>
+* **[property]use_rawinput()** 
+
 Shadows the `use_rawinput` class attribute to make it instance-bound.
 
 
-### **exception** ShellError(message=None)
+### [exception]ShellError(message=None)
 Used to signal a recoverable error to the shell
 
 When caught, the shell is not interrupted contrary to the other kind of exception.
@@ -205,23 +217,24 @@ The command can choose to capture keyboard input with the parameter `capture_key
 ## `banner` API
 
 
-### **class** BarSpinner(text='', modifier=lambda x: ...)
+### [class]BarSpinner(text='', modifier=lambda x: ...)
 Preview :
 
 `| Spinning... |▅▃▁▇`
 
 
-### **class** ProgressBar(text='', modifier=lambda x: ..., bg_modifier_when_full=lambda x: ...)
+### [class]ProgressBar(text='', modifier=lambda x: ..., bg_modifier_when_full=lambda x: ...)
 Preview :
 `| Hi ! |██████████████████████████████████████████`
 
 
 
-* <u> **property** progress()</u>
+* **[property]progress()** 
+
 Current progress in percentage
 
 
-### **class** TwoWayBar(text='', modifier=lambda x: ..., bg_modifier=lambda x: ...)
+### [class]TwoWayBar(text='', modifier=lambda x: ..., bg_modifier=lambda x: ...)
 Preview :
 
 `| Hello... |██████████████████████████████████████████████████████████`
@@ -232,5 +245,6 @@ Preview :
 
 
 
-* <u> **property** progress()</u>
+* **[property]progress()** 
+
 Current progress in percentage
