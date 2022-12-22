@@ -106,14 +106,14 @@ It is possible to display one-line animations under the prompt like loading bars
 ### **class** Shell(prompt=DEFAULT_PROMPT, istream=stdin, ostream=stdout)
 
 
-*<u> banner(banner, refresh_delay_s)<\u>
+* <u> banner(banner, refresh_delay_s)</u>
 Display a banner under the prompt
 
 Only one banner can be displayed at a time.
 
 
 
-*<u> create_task(coro, cleanup_callback=lambda : ...)<\u>
+* <u> create_task(coro, cleanup_callback=lambda : ...)</u>
 Schedule a coroutine to be carried out
 
 This method is thread-safe. This function is meant to schedule commands to be done. Thus, if the shell is stopping, this method will have no effect.
@@ -124,60 +124,60 @@ This method make sure the provided coroutine is given the chance to run at least
 
 
 
-*<u> default(line)<\u>
+* <u> default(line)</u>
 Exit the shell if needed
 
 It overrides the base class method of the same name. It allows to leave the shell whatever the input line might be.
 
 
 
-*<u> do_EOF(_)<\u>
+* <u> do_EOF(_)</u>
 Exit the shell
 
 It is invoked when an end-of-file is received
 
 
 
-*<u> **property** is_running()<\u>
+* <u> **property** is_running()</u>
 Indicate if the shell is not terminated or in termination
 
 
 
-*<u> log(\*args, \*\*kwargs)<\u>
+* <u> log(\*args, \*\*kwargs)</u>
 Log a message of any choosen style
 
 `args` and `kwargs` are forwarded to `SynchronizedOStream.log`.
 
 
 
-*<u> log_error(msg, \*args, \*\*kwargs)<\u>
+* <u> log_error(msg, \*args, \*\*kwargs)</u>
 Log an error
 
 
 
-*<u> log_help(msg, \*args, \*\*kwargs)<\u>
+* <u> log_help(msg, \*args, \*\*kwargs)</u>
 Log a help message
 
 
 
-*<u> log_status(msg, \*args, \*\*kwargs)<\u>
+* <u> log_status(msg, \*args, \*\*kwargs)</u>
 Log a status message
 
 
 
-*<u> **property** prompt()<\u>
+* <u> **property** prompt()</u>
 Shadows the `prompt` class attribute to make it instance-bound.
 
 
 
-*<u> **async** run()<\u>
+* <u> **async** run()</u>
 Start a shell session asynchronously
 
 When the user decides to exit the shell, every running task will be cancelled, and the shell will wait for them to terminate.
 
 
 
-*<u> **property** use_rawinput()<\u>
+* <u> **property** use_rawinput()</u>
 Shadows the `use_rawinput` class attribute to make it instance-bound.
 
 
@@ -217,7 +217,7 @@ Preview :
 
 
 
-*<u> **property** progress()<\u>
+* <u> **property** progress()</u>
 Current progress in percentage
 
 
@@ -232,5 +232,5 @@ Preview :
 
 
 
-*<u> **property** progress()<\u>
+* <u> **property** progress()</u>
 Current progress in percentage
