@@ -7,9 +7,6 @@ The `shell` package provides several utilities for building your own CLI. Define
 Here is an example of a simple shell:
 
 ```default
-    def __init__(self, *args, **kwargs):
-        super().__init__(self, *args, **kwargs)
-
     @command()
     @argument("msg", type=str)
     def do_print(self, msg):
@@ -28,7 +25,6 @@ Here is an example of a simple shell:
         for i in range(n):
             self.log_status(msg)
             await asyncio.sleep(1)
-
 ```
 
 The syntax for the command themselves is simillar to the one from the [cmd](https://docs.python.org/3/library/cmd.html) library, but lots of features are differents:
@@ -56,15 +52,11 @@ When the user wish to see more information for a given command, the docstring of
 
 ## Capturing the keyboard input
 
-:warning: This feature is poorly supported across terminals. If you want to use it, run your shell into a compatible terminal like `xterm`.
+**Warning** This feature is poorly supported across terminals. If you want to use it, run your shell into a compatible terminal like `xterm`.
 
 Instead of receiving command from the standard input, it is possible of directly capture input form keyboard.
 
 ```default
-    def __init__(self, *args, **kwargs):
-        super().__init__(self, *args, **kwargs)
-
-
     @command(capture_keyboard="listener")
     async def do_print_key(self, listener):
         """
@@ -78,6 +70,7 @@ Instead of receiving command from the standard input, it is possible of directly
             if event_key[0]:
                 if event_key[1] == Key.esc:
                     return
+                print(repr(event_key[1]))
 ```
 
 Access to standard input is restored when the command is over.
@@ -87,23 +80,19 @@ Access to standard input is restored when the command is over.
 It is possible to display one-line animations under the prompt like loading bars or spinners for visual purpose.
 
 ```default
-    def __init__(self, *args, **kwargs):
-        super().__init__(self, *args, **kwargs)
-
-                print(repr(event_key[1]))
-
     @command()
     async def do_show_banner(self):
         """
         Print a funky banner for 3 seconds
         """
         async with self.banner(BarSpinner("Spinning..."), refresh_delay_s=60e-3):
+            await asyncio.sleep(3)
 ```
 
 ## `shell` API
 
 
-### [class] Shell(prompt=DEFAULT_PROMPT, istream=stdin, ostream=stdout)
+###  Shell(prompt=DEFAULT_PROMPT, istream=stdin, ostream=stdout)
 
 
 * **banner(banner, refresh_delay_s)** 
@@ -142,7 +131,7 @@ It is invoked when an end-of-file is received
 
 
 
-* **[property] is_running()** 
+* **[property ] is_running()** 
 
 Indicate if the shell is not terminated or in termination
 
@@ -174,13 +163,13 @@ Log a status message
 
 
 
-* **[property] prompt()** 
+* **[property ] prompt()** 
 
 Shadows the `prompt` class attribute to make it instance-bound.
 
 
 
-* **[async] run()** 
+* **[async ] run()** 
 
 Start a shell session asynchronously
 
@@ -188,12 +177,12 @@ When the user decides to exit the shell, every running task will be cancelled, a
 
 
 
-* **[property] use_rawinput()** 
+* **[property ] use_rawinput()** 
 
 Shadows the `use_rawinput` class attribute to make it instance-bound.
 
 
-### [exception] ShellError(message=None)
+### [exception ] ShellError(message=None)
 Used to signal a recoverable error to the shell
 
 When caught, the shell is not interrupted contrary to the other kind of exception.
@@ -217,24 +206,24 @@ The command can choose to capture keyboard input with the parameter `capture_key
 ## `banner` API
 
 
-### [class] BarSpinner(text='', modifier=lambda x: ...)
+###  BarSpinner(text='', modifier=lambda x: ...)
 Preview :
 
 `| Spinning... |▅▃▁▇`
 
 
-### [class] ProgressBar(text='', modifier=lambda x: ..., bg_modifier_when_full=lambda x: ...)
+###  ProgressBar(text='', modifier=lambda x: ..., bg_modifier_when_full=lambda x: ...)
 Preview :
 `| Hi ! |██████████████████████████████████████████`
 
 
 
-* **[property] progress()** 
+* **[property ] progress()** 
 
 Current progress in percentage
 
 
-### [class] TwoWayBar(text='', modifier=lambda x: ..., bg_modifier=lambda x: ...)
+###  TwoWayBar(text='', modifier=lambda x: ..., bg_modifier=lambda x: ...)
 Preview :
 
 `| Hello... |██████████████████████████████████████████████████████████`
@@ -245,6 +234,6 @@ Preview :
 
 
 
-* **[property] progress()** 
+* **[property ] progress()** 
 
 Current progress in percentage
