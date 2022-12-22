@@ -42,6 +42,7 @@ class KeyboardListener:
     async def get(self):
         """
         Wait for a keyboard event
+        
         The return value has the format ``(is_pressed, key)`` with ``is_pressed`` equaling ``True`` if the event is a key press (otherwise, it is a key release) and ``key`` the ``pynput.keyboard.Key`` object associated with the pressed / released key.
         """
 
@@ -53,6 +54,7 @@ class KeyboardListener:
     def __push_pressed(self, key):
         """
         Add a key press event to the queue
+        
         This method is meant to be invoked from ``__pynput_listener``.
         """
 
@@ -65,6 +67,7 @@ class KeyboardListener:
     def __push_released(self, key):
         """
         Add a key release event to the queue
+        
         This method is meant to be invoked from ``__pynput_listener``.
         """
 
@@ -77,6 +80,7 @@ class KeyboardListener:
     def __release_lock_later(self):
         """
         Release the lock on the event callbacks after ``KEYBOARD_LISTENER_REFRESH_DELAY_S`` seconds
+        
         This method is used within the event callbacks in order to slow down the arrival rate of the keyboard events.
         """
 

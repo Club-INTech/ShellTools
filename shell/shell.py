@@ -23,6 +23,7 @@ class Shell(cmd.Cmd):
     ):
         """
         Initialize the base class with IO streams
+        
         ``use_rawinput`` will be set to ``True`` if and only if ``istream`` is ``sys.stdin`` and ``ostream`` is ``sys.stdout``.
         """
 
@@ -54,6 +55,7 @@ class Shell(cmd.Cmd):
     def default(self, line):
         """
         Exit the shell if needed
+        
         It overrides the base class method of the same name. It allows to leave the shell whatever the input line might be.
         """
         if not self.__continue:
@@ -64,6 +66,7 @@ class Shell(cmd.Cmd):
     def do_EOF(self, _) -> bool:
         """
         Exit the shell
+        
         It is invoked when an end-of-file is received
         """
         self.__continue = False
@@ -72,6 +75,7 @@ class Shell(cmd.Cmd):
     async def run(self) -> None:
         """
         Start a shell session asynchronously
+        
         When the user decides to exit the shell, every running task will be cancelled, and the shell will wait for them to terminate.
         """
         self.__loop = aio.get_event_loop()
@@ -110,8 +114,11 @@ class Shell(cmd.Cmd):
     ) -> None:
         """
         Schedule a coroutine to be carried out
+        
         This method is thread-safe. This function is meant to schedule commands to be done. Thus, if the shell is stopping, this method will have no effect.
+        
         A cleanup callback can be provided, which will be invoked when the task is done.
+        
         This method make sure the provided coroutine is given the chance to run at least once before another command is processed. This way, the coroutine will not be cancelled by an EOF or any other command that terminates the shell without being given the chance to handle the cancellation.
         """
         task_running_event = threading.Event()
@@ -123,6 +130,7 @@ class Shell(cmd.Cmd):
     def log(self, *args, **kwargs) -> None:
         """
         Log a message of any choosen style
+        
         ``args`` and ``kwargs`` are forwarded to ``SynchronizedOStream.log``.
         """
         self.__ostream.log(*args, **kwargs)
@@ -151,6 +159,7 @@ class Shell(cmd.Cmd):
     async def banner(self, banner: str, refresh_delay_s: int):
         """
         Display a banner under the prompt
+        
         Only one banner can be displayed at a time.
         """
 
@@ -187,6 +196,7 @@ class Shell(cmd.Cmd):
     ):
         """
         Schedule a coroutine to be carried out
+        
         This method is not thread-safe and should only be called through ``create_task``.
         """
 
@@ -205,6 +215,7 @@ class Shell(cmd.Cmd):
     ):
         """
         Handle a command finalization and call the cleaning callback
+        
         When a task associated to a command is done, this function is invoked to handle potential exception.
         """
         try:
@@ -231,6 +242,7 @@ ShellType = TypeVar("ShellType", bound=Shell)
 class ShellError(Exception):
     """
     Used to signal a recoverable error to the shell
+    
     When caught, the shell is not interrupted contrary to the other kind of exception.
     """
 

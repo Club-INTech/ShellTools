@@ -4,6 +4,7 @@ from typing import Any, Dict
 class Match:
     """
     Create a pattern matcher
+    
     Following syntaxes are valid :
     .. code-block:: python
 
@@ -11,6 +12,7 @@ class Match:
         (Match() & {(patterns : objects)...})(value)
 
     Patterns can be types or values.
+    
     When trying to match the value against a pattern, the following sequence will be applied :
       - First, an attempt will be made to match by value; in that case, the corresponding object will be called if possible on zero parameters
       - If no match has been found, then an attempt will be made to match by type; in that case, if the corresponding object is callable on the value or no parameters, it will be called (the one parameter call will be choosen if the number of parameters of the functor is non-zero, regardless of whether there are default parameters or not)

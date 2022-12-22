@@ -24,6 +24,7 @@ class ProgressBar:
     ):
         """
         Set the text to display before the bar
+        
         A modifier can be specified to change the color of the bar.
         """
         self.__text = text
@@ -82,10 +83,6 @@ class TwoWayBar:
         modifier: Callable[[str], str] = lambda x: x,
         bg_modifier: Callable[[str], str] = lambda x: tmg.on_white(tmg.in_black(x)),
     ):
-        """
-        Set the text to display before the bar
-        A modifier can be specified to change the color of the bar.
-        """
         self.__text = text
         self.__modifier = modifier
         self.__bg_modifier = bg_modifier
@@ -143,16 +140,13 @@ class TwoWayBar:
 class BarSpinner:
     """
     Preview :
+    
     ``| Spinning... |▅▃▁▇``
     """
 
     PATTERN = "▁▂▃▄▅▆▇█"
 
     def __init__(self, text: str = "", modifier: Callable[[str], str] = lambda x: x):
-        """
-        Set the text to display before the bar
-        A modifier can be specified to change the color of the bar.
-        """
         self.__text = text
         self.__modifier = modifier
         self.__progress = 0

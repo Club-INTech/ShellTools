@@ -14,9 +14,6 @@ class SynchronizedOStream(TextIO):
     def __init__(
         self, ostream: TextIO, use_rawinput: bool, modifier: Callable[[str], str]
     ):
-        """
-        Wrap an output stream
-        """
         self.__ostream = ostream
         self.__lock = Lock()
         self.__use_rawinput = use_rawinput
@@ -27,6 +24,7 @@ class SynchronizedOStream(TextIO):
     def __enter__(self) -> "SynchronizedOStream":
         """
         Acquire the stream
+        
         Call to methods other than ``__exit__`` will not have any effect on the lock after entering the context (for example, ``write`` will not try to release the stream).
         """
         self.__lock.acquire()
@@ -91,6 +89,7 @@ class SynchronizedOStream(TextIO):
     def write(self, msg: str) -> int:
         """
         Write a string to the wrapped output stream
+        
         If this stream has not been locked yet with the context manager, the lock is released if and only if ``msg`` is newline-terminated or is empty.
         """
 
@@ -121,6 +120,7 @@ class SynchronizedOStream(TextIO):
     ) -> None:
         """
         Print the given message to the output stream
+        
         A new line is inserted after the message.
         """
 
@@ -145,6 +145,7 @@ class SynchronizedOStream(TextIO):
     ) -> None:
         """
         Add a banner to display, update its output regulary and remove it
+        
         The banner update can be stopped by setting ``stop_event``.
         """
         self.__banners.append(banner)
@@ -187,6 +188,7 @@ class SynchronizedOStream(TextIO):
 def _linewiper(msg: Optional[str] = None) -> str:
     """
     Return a string that can erase a whole line in the current terminal
+    
     With no argument, the line is just wiped and no newlines are inserted.
     """
     return (
@@ -200,6 +202,7 @@ def _linewiper(msg: Optional[str] = None) -> str:
 def _below(msg: str = "", position: int = 0) -> str:
     """
     Write a message below the cursor and go back up at the beginning of the line
+    
     A message can be printed several lines below with the ``position`` parameter.
     """
     return (

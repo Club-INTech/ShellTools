@@ -30,6 +30,7 @@ Handles a serial communication stream with a remote device
 
 
 
-* new_request(payload)
+*<u> new_request(payload)<\u>
 Have the process send a new request
+
 Each request is given an UID which is used to keep track of the order of creation. The newest request are resolved first by the remote device.
