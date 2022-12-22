@@ -103,7 +103,7 @@ It is possible to display one-line animations under the prompt like loading bars
 ## `shell` API
 
 
-### [class]Shell(prompt=DEFAULT_PROMPT, istream=stdin, ostream=stdout)
+### [class] Shell(prompt=DEFAULT_PROMPT, istream=stdin, ostream=stdout)
 
 
 * **banner(banner, refresh_delay_s)** 
@@ -142,7 +142,7 @@ It is invoked when an end-of-file is received
 
 
 
-* **[property]is_running()** 
+* **[property] is_running()** 
 
 Indicate if the shell is not terminated or in termination
 
@@ -174,13 +174,13 @@ Log a status message
 
 
 
-* **[property]prompt()** 
+* **[property] prompt()** 
 
 Shadows the `prompt` class attribute to make it instance-bound.
 
 
 
-* **[async]run()** 
+* **[async] run()** 
 
 Start a shell session asynchronously
 
@@ -188,12 +188,12 @@ When the user decides to exit the shell, every running task will be cancelled, a
 
 
 
-* **[property]use_rawinput()** 
+* **[property] use_rawinput()** 
 
 Shadows the `use_rawinput` class attribute to make it instance-bound.
 
 
-### [exception]ShellError(message=None)
+### [exception] ShellError(message=None)
 Used to signal a recoverable error to the shell
 
 When caught, the shell is not interrupted contrary to the other kind of exception.
@@ -217,24 +217,24 @@ The command can choose to capture keyboard input with the parameter `capture_key
 ## `banner` API
 
 
-### [class]BarSpinner(text='', modifier=lambda x: ...)
+### [class] BarSpinner(text='', modifier=lambda x: ...)
 Preview :
 
 `| Spinning... |▅▃▁▇`
 
 
-### [class]ProgressBar(text='', modifier=lambda x: ..., bg_modifier_when_full=lambda x: ...)
+### [class] ProgressBar(text='', modifier=lambda x: ..., bg_modifier_when_full=lambda x: ...)
 Preview :
 `| Hi ! |██████████████████████████████████████████`
 
 
 
-* **[property]progress()** 
+* **[property] progress()** 
 
 Current progress in percentage
 
 
-### [class]TwoWayBar(text='', modifier=lambda x: ..., bg_modifier=lambda x: ...)
+### [class] TwoWayBar(text='', modifier=lambda x: ..., bg_modifier=lambda x: ...)
 Preview :
 
 `| Hello... |██████████████████████████████████████████████████████████`
@@ -245,6 +245,6 @@ Preview :
 
 
 
-* **[property]progress()** 
+* **[property] progress()** 
 
 Current progress in percentage

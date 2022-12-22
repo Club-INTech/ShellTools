@@ -25,7 +25,7 @@ response = await remote.call(key, args...)
 ## `remote` API
 
 
-### [class]Remote(port, dispatcher, reply_key)
+### [class] Remote(port, dispatcher, reply_key)
 Handles a serial communication stream with a remote device
 
 
