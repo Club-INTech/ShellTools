@@ -20,7 +20,7 @@ pip3 install ShellTools/requirements.txt
 If you want a taste of the features provided by the `shell` package, you can run the demo shell.
 
 ```bash
-python3 -m ShellTools.demo
+./run_demo
 ```
 
 [Unpadded](https://github.com/StarQTius/Unpadded) will require [ccache](https://ccache.dev/) to run. Install it from your packet manager (e.g. Aptitude).

@@ -9,8 +9,8 @@ pytest-asyncio
 pytest-timeout
 
 sphinx
-sphinx-markdown-builder
 
 mypy
 
 git+https://github.com/StarQTius/Unpadded
+git+https://github.com/StarQTius/sphinx-markdown-builder
