@@ -52,7 +52,7 @@ When the user wish to see more information for a given command, the docstring of
 
 ## Capturing the keyboard input
 
-**Warning** This feature is poorly supported across terminals. If you want to use it, run your shell into a compatible terminal like `xterm`.
+> **Warning** This feature is poorly supported across terminals. If you want to use it, run your shell into a compatible terminal like `xterm`.
 
 Instead of receiving command from the standard input, it is possible of directly capture input form keyboard.
 
