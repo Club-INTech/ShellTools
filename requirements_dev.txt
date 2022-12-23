@@ -1,0 +1,12 @@
+mock_serial
+pytest
+pytest-asyncio
+pytest-timeout
+
+sphinx
+autoflake
+mypy
+isort
+black
+
+git+https://github.com/StarQTius/sphinx-markdown-builder

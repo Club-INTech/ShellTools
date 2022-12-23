@@ -1,16 +1,6 @@
-mock_serial
 pandas
 pynput
 pyserial
 terminology
 
-pytest
-pytest-asyncio
-pytest-timeout
-
-sphinx
-
-mypy
-
 git+https://github.com/StarQTius/Unpadded
-git+https://github.com/StarQTius/sphinx-markdown-builder

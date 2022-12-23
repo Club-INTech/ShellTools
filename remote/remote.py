@@ -5,7 +5,7 @@ from typing import Any, Optional
 from warnings import warn
 
 import serial as sr
-from unpadded import Client, PacketStatus # type: ignore
+from unpadded import Client, PacketStatus  # type: ignore
 
 from annotation import DispatcherLike, KeyLike
 from utility.match import Match
@@ -56,7 +56,7 @@ class Remote(Client):
     async def __get_response(self, uid: int) -> Any:
         """
         Wait asynchronously for the pending request with the given UID to be resolved
-        
+
         The responses are received in the same order as the requests, so the coroutine wait for the other requests with lesser UID to be resolved first.
         If the process send an exception through the pipe, then every current and future pending request raise this exception when awaited.
         """
@@ -137,7 +137,7 @@ class _RemoteProcess:
     async def __handle_tx(self) -> None:
         """
         Transmit the packets received from the main process want to send to the remote device
-        
+
         It is assumed that the remote device can handle only one request at a time. Once a request is sent, the coroutine await for ``__reply_callback`` to be invoked (which occurs when the response has been received).
         """
         while True:
@@ -151,7 +151,7 @@ class _RemoteProcess:
     async def __handle_rx(self) -> None:
         """
         Receive the packets from the remote device and send them to the main process
-        
+
         It forwards the packet to the underlying dispatcher, but does not send back any response.
         """
 
@@ -189,7 +189,7 @@ class _RemoteProcess:
     async def __reply_callback(self, reply: bytes) -> None:
         """
         Callback invoked when received the remote device response
-        
+
         When called, `__handle_tx` is notified of the availability of the remote device.
         """
         self.__pipe.send(bytes(reply))

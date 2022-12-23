@@ -1,0 +1,10 @@
+name: Check Installation
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: sudo apt install ccache
+    - run: pip3 install requirements.txt
+    - run: echo EOF | python3 demo.py

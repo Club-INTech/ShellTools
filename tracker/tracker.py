@@ -3,8 +3,8 @@ import multiprocessing as mp
 from enum import IntEnum
 from typing import List
 
-from unpadded import Client # type: ignore
 from pandas import DataFrame
+from unpadded import Client  # type: ignore
 
 from annotation import KeyLike
 

@@ -23,7 +23,7 @@ If you want a taste of the features provided by the ``shell`` package, you can r
 
 .. code-block:: bash
    
-  ./run_demo
+  python3 ShellTools/demo.py
 
 `Unpadded <https://github.com/StarQTius/Unpadded>`_ will require `ccache <https://ccache.dev/>`_ to run. Install it from your packet manager (e.g. Aptitude).
 
