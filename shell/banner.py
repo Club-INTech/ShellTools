@@ -1,11 +1,5 @@
-import asyncio as aio
-import cmd
 import os
-from argparse import ArgumentParser, Namespace
-from contextlib import asynccontextmanager
-from sys import stdin, stdout
-from textwrap import dedent
-from typing import Callable, Coroutine, NoReturn, Optional, TextIO, TypeVar
+from typing import Callable
 
 import terminology as tmg
 
@@ -24,7 +18,7 @@ class ProgressBar:
     ):
         """
         Set the text to display before the bar
-        
+
         A modifier can be specified to change the color of the bar.
         """
         self.__text = text
@@ -140,7 +134,7 @@ class TwoWayBar:
 class BarSpinner:
     """
     Preview :
-    
+
     ``| Spinning... |▅▃▁▇``
     """
 

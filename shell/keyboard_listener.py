@@ -1,15 +1,6 @@
 import asyncio as aio
-import cmd
 import threading
-from contextlib import asynccontextmanager
-from functools import partial
 from queue import Queue
-from sys import stdin, stdout
-from typing import Callable, Coroutine, List, TextIO, TypeVar
-
-import terminology as tmg
-
-from utility.synchronized_ostream import SynchronizedOStream
 
 # Try importing `pynput` if possible, but do not interrupt the program if the import fail
 try:

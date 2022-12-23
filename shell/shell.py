@@ -3,7 +3,6 @@ import cmd
 import threading
 from contextlib import asynccontextmanager
 from functools import partial
-from queue import Queue
 from sys import stdin, stdout
 from typing import Callable, Coroutine, List, Optional, TextIO, TypeVar
 

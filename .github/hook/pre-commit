@@ -18,7 +18,7 @@ for FILE in ${STAGGED_FILES}; do
 done
 
 echo -e "\e[1;${COLOR}m-- GIT HOOK : format inclusions with isort & autoflake --\e[1;0m"
-autoflake --in-place --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports *.py utility/*.py tests/*.py
+autoflake --in-place --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports *.py shell/*.py tracker/*.py remote/*.py utility/*.py tests/*.py
 isort .
 
 echo -e "\e[1;${COLOR}m-- GIT HOOK : run tests with pytest --\e[1;0m"
