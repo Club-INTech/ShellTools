@@ -1,15 +1,7 @@
-import asyncio as aio
 import random as rnd
 from io import StringIO
-from math import sin
 
 import pytest
-import terminology as tmg
-
-from shell import *
-from shell.banner import *
-from shell.command import argument, command
-from utility.match import Match
 
 from .mock_shell import MockShell
 

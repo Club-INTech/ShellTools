@@ -1,9 +1,6 @@
 import asyncio as aio
-import random as rnd
-from io import StringIO
 from math import sin
 
-import pytest
 import terminology as tmg
 
 from shell import *

@@ -7,7 +7,6 @@ echo -e "\e[1;${COLOR}m-- GIT HOOK : check annotations with mypy \e[1;0m"
 for FILE in ${STAGGED_FILES}; do
   if [ -f "$FILE" ] && [[ $FILE == *.py ]]; then
     mypy --ignore-missing-imports $FILE || exit 1
-    git add $FILE
   fi
 done
 
@@ -15,7 +14,6 @@ echo -e "\e[1;${COLOR}m-- GIT HOOK : format source files with Black --\e[1;0m"
 for FILE in ${STAGGED_FILES}; do
   if [ -f "$FILE" ] && [[ $FILE == *.py ]]; then
     black $FILE
-    git add $FILE
   fi
 done
 
@@ -29,3 +27,7 @@ echo -e "\e[1;${COLOR}m-- GIT HOOK : run tests with pytest --\e[1;0m"
 echo -e "\e[1;${COLOR}m-- GIT HOOK : build doc with sphinx --\e[1;0m"
 doc/build || exit 1
 git add **/*.md *.md
+
+for FILE in $STAGGED_FILES; do
+  git add $FILE;
+done
