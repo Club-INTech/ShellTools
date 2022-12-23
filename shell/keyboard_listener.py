@@ -11,13 +11,18 @@ import terminology as tmg
 
 from utility.synchronized_ostream import SynchronizedOStream
 
+# Try importing `pynput` if possible, but do not interrupt the program if the import fail
+try:
+    import pynput
+except:
+    pass
+
 DEFAULT_PROMPT = "[shell] > "
 KEYBOARD_LISTENER_REFRESH_DELAY_S = 10e-3
 
+
 class KeyboardListener:
     def __init__(self):
-        import pynput
-        
         self.__pynput_listener = pynput.keyboard.Listener(
             on_press=self.__push_pressed, on_release=self.__push_released, suppress=True
         )
@@ -42,7 +47,7 @@ class KeyboardListener:
     async def get(self):
         """
         Wait for a keyboard event
-        
+
         The return value has the format ``(is_pressed, key)`` with ``is_pressed`` equaling ``True`` if the event is a key press (otherwise, it is a key release) and ``key`` the ``pynput.keyboard.Key`` object associated with the pressed / released key.
         """
 
@@ -54,7 +59,7 @@ class KeyboardListener:
     def __push_pressed(self, key):
         """
         Add a key press event to the queue
-        
+
         This method is meant to be invoked from ``__pynput_listener``.
         """
 
@@ -67,7 +72,7 @@ class KeyboardListener:
     def __push_released(self, key):
         """
         Add a key release event to the queue
-        
+
         This method is meant to be invoked from ``__pynput_listener``.
         """
 
@@ -80,7 +85,7 @@ class KeyboardListener:
     def __release_lock_later(self):
         """
         Release the lock on the event callbacks after ``KEYBOARD_LISTENER_REFRESH_DELAY_S`` seconds
-        
+
         This method is used within the event callbacks in order to slow down the arrival rate of the keyboard events.
         """
 
