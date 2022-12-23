@@ -6,5 +6,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: sudo apt install ccache
+    - run: pip3 install pip --upgrade 
     - run: pip3 install -r requirements.txt
     - run: echo EOF | python3 demo.py

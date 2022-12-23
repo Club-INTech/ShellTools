@@ -6,6 +6,9 @@ Quickly build command line interface to operate a remote target that uses `Unpad
 Installation
 ------------
 
+As a user
+~~~~~~~~~
+
 Add this repository as a submodule of your project.
 
 .. code-block:: bash
@@ -17,7 +20,13 @@ Install the Python dependencies from ``requirements.txt``.
 
 .. code-block:: bash
    
-  pip3 install ShellTools/requirements.txt
+  pip3 install -r ShellTools/requirements.txt
+
+`Unpadded <https://github.com/StarQTius/Unpadded>`_ will require `ccache <https://ccache.dev/>`_ to run. Install it from your packet manager (e.g. Aptitude).
+
+.. code-block:: bash
+   
+  sudo apt install ccache
 
 If you want a taste of the features provided by the ``shell`` package, you can run the demo shell.
 
@@ -25,11 +34,21 @@ If you want a taste of the features provided by the ``shell`` package, you can r
    
   python3 ShellTools/demo.py
 
-`Unpadded <https://github.com/StarQTius/Unpadded>`_ will require `ccache <https://ccache.dev/>`_ to run. Install it from your packet manager (e.g. Aptitude).
+As a developper
+~~~~~~~~~~~~~~~
+
+If you want to contribute, please install the necessary development tools.
 
 .. code-block:: bash
-   
+  
   sudo apt install ccache
+  ./configure
+
+Do not forget to test your installation afterwards.
+
+.. code-block:: bash
+
+   ./check  
 
 .. toctree::
    shell/README
