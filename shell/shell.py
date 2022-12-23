@@ -24,10 +24,10 @@ class Shell(cmd.Cmd):
         """
         Initialize the base class with IO streams
 
-        ``use_rawinput`` will be set to ``True`` if and only if ``istream`` is ``sys.stdin`` and ``ostream`` is ``sys.stdout``.
+        ``use_rawinput`` will be set to ``True`` if and only if the provided streams are connected to a terminal.
         """
 
-        self.__use_rawinput = istream is stdin and ostream is stdout
+        self.__use_rawinput = istream.isatty() and ostream.isatty()
         self.__istream = istream
         self.__ostream = SynchronizedOStream(
             ostream, use_rawinput=self.__use_rawinput, modifier=tmg.in_yellow
