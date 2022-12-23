@@ -8,4 +8,10 @@ jobs:
     - run: sudo apt install ccache
     - run: pip3 install pip --upgrade 
     - run: pip3 install -r requirements.txt
-    - run: echo EOF | python3 demo.py
+    - run: echo '
+        alert
+        timmed_alert
+        error
+        banner
+        panic
+      ' | python3 demo.py
