@@ -165,10 +165,12 @@ class _RemoteProcess:
         def check_unloaded_dispatcher():
             nonlocal header_sentinel
             header_sentinel = len(HEADER)
-            if not self.__dispatcher.is_loaded():
+            if self.__dispatcher.is_loaded():
                 warn(
-                    f"Action request from remote device would return a non-empty response which is not supported. That result will be ignored."
+                    f"Action request from remote device would return a non-empty response which is not supported. That result will be discarded.",
+                    RuntimeWarning,
                 )
+                self.__dispatcher.write_to(lambda x: None)
 
         while True:
             while self.__serial.in_waiting > 0:

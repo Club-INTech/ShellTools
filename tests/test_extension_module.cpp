@@ -18,6 +18,7 @@ std::int64_t identity_i64(std::int64_t);
 
 inline void reply(const std::array<upd::byte_t, 32> &) {}
 inline void do_something(std::uint32_t) {}
+inline std::uint32_t return_something(std::uint32_t x) { return x; }
 
 void control_tracker(std::uint8_t);
 inline void report(std::uint16_t, std::uint16_t, std::uint16_t) {}
@@ -33,7 +34,7 @@ upd::keyring keyring{upd::flist<
     identity_i64,
     control_tracker>,
   upd::little_endian, upd::two_complement};
-upd::keyring dispatcher_keyring{upd::flist<reply, do_something, report>, upd::little_endian, upd::two_complement};
+upd::keyring dispatcher_keyring{upd::flist<reply, do_something, report, return_something>, upd::little_endian, upd::two_complement};
 
 PYBIND11_MODULE(test_extension_module, pymodule) {
   upd::py::unpack_keyring(pymodule, keyring);

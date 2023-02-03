@@ -1,5 +1,6 @@
 import random as rnd
 from multiprocessing import Value
+from warnings import simplefilter
 
 import pytest
 from mock_serial.pytest import *
@@ -131,3 +132,21 @@ async def test_progagate_exception_back_to_main_thread(mock_serial):
 
     with pytest.raises(RuntimeError):
         await remote.call(tem.double_u16, 0x00)
+
+
+@pytest.mark.asyncio
+async def test_warn_when_action_returns_non_void(mock_serial):
+    simplefilter("error")
+
+    remote = Remote(
+        port=mock_serial.port, dispatcher=tem.Dispatcher(), reply_key=tem.reply
+    )
+
+    mock_serial.stub(
+        receive_bytes=HEADER + b"\x00\x00",
+        send_bytes=HEADER + b"\x03\x00\x00\x00\x00" + HEADER + b"\x00" + 32 * b"\x00",
+    )
+
+    with pytest.raises(RuntimeWarning):
+        # The first call triggers the `return_something` call
+        await remote.call(tem.double_u8, 0x00)
