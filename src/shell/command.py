@@ -68,7 +68,7 @@ def command(capture_keyboard: Optional[str] = None) -> Callable:
 def argument(*args, **kwargs) -> Callable[[Callable], Callable]:
     """
     Provide an argument specification
-    
+
     This decorator behaves like the ``ArgumentParser.add_argument`` method. However, the result from the call of ``ArgumentParser.parse_args`` is unpacked to the command.
     """
 
@@ -107,10 +107,10 @@ class _Wrapper:
     ) -> bool:
         """
         Forward the accumulated CLI argument to the held async function
-        
+
         The async function will also be given the ``extra_parameters`` keyword parameters.
         If ``is_blocking`` is ``True``, the thread reading the standard input will block until the command is done.
-        
+
         When the command is done, ``cleanup`` will be called.
         """
         cleanup_callback = lambda: cleanup(extra_parameters)
@@ -158,7 +158,7 @@ class _Parser(ArgumentParser):
     def parse(self, shell: Shell, line: str) -> Namespace:
         """
         Parse the argument from a command line
-        
+
         Instead of exiting the program, this method will raise a ``ShellError()`` if the parsing fails.
         """
         self.__shell = shell
@@ -187,7 +187,7 @@ class _Parser(ArgumentParser):
     def _print_message(self, message: str, _=None) -> None:
         """
         Print to the output stream
-        
+
         It overrides the method of the base class so it does not write to the standard error.
         """
         self.__shell.log(message)
@@ -196,7 +196,7 @@ class _Parser(ArgumentParser):
 async def _run_then_notify(coro: Coroutine, done_event: threading.Event):
     """
     Await ``coro`` then notify the caller that ``coro`` is done through ``done_event``
-    
+
     This function is used to wait the completion of a coroutine from another thread.
     """
     await coro

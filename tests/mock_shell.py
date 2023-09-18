@@ -76,7 +76,7 @@ class MockShell(Shell):
         while True:
             try:
                 await aio.sleep(0)
-            except (aio.CancelledError):
+            except aio.CancelledError:
                 self.cancelled = True
                 return
 

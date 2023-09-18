@@ -33,8 +33,8 @@ upd::keyring keyring{upd::flist<
     double_i64,
     identity_i64,
     control_tracker>,
-  upd::little_endian, upd::two_complement};
-upd::keyring dispatcher_keyring{upd::flist<reply, do_something, report, return_something>, upd::little_endian, upd::two_complement};
+  upd::little_endian, upd::twos_complement};
+upd::keyring dispatcher_keyring{upd::flist<reply, do_something, report, return_something>, upd::little_endian, upd::twos_complement};
 
 PYBIND11_MODULE(test_extension_module, pymodule) {
   upd::py::unpack_keyring(pymodule, keyring);

@@ -80,7 +80,7 @@ async def test_request_an_action_through_remote(mock_serial):
         remote.call(tem.double_u32, u32),
     ]
     awaitables.reverse()
-    for (awaitable, value) in zip(awaitables, [u32, u16, u8]):
+    for awaitable, value in zip(awaitables, [u32, u16, u8]):
         assert await awaitable == 2 * value
 
 
