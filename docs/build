@@ -1,3 +1,3 @@
 #/bin/sh
 
-poetry run sphinx-build -M markdown -d .doctrees docs src/shelltools
+poetry run sphinx-build -M markdown -d .doctrees docs .

@@ -47,115 +47,115 @@ Do not forget to test your installation afterwards.
 ```
 
 
-* [Create an asynchronous command line interface with the Shell class](shell/README.md)
+* [Create an asynchronous command line interface with the Shell class](shelltools/shell/README.md)
 
 
-    * [Building a basic shell](shell/README.md#building-a-basic-shell)
+    * [Building a basic shell](shelltools/shell/README.md#building-a-basic-shell)
 
 
-        * [Synchronous commands](shell/README.md#synchronous-commands)
+        * [Synchronous commands](shelltools/shell/README.md#synchronous-commands)
 
 
-        * [Asynchronous commands](shell/README.md#asynchronous-commands)
+        * [Asynchronous commands](shelltools/shell/README.md#asynchronous-commands)
 
 
-        * [Support for docstrings](shell/README.md#support-for-docstrings)
+        * [Support for docstrings](shelltools/shell/README.md#support-for-docstrings)
 
 
-    * [Capturing the keyboard input](shell/README.md#capturing-the-keyboard-input)
+    * [Capturing the keyboard input](shelltools/shell/README.md#capturing-the-keyboard-input)
 
 
-    * [Display banners under the prompt](shell/README.md#display-banners-under-the-prompt)
+    * [Display banners under the prompt](shelltools/shell/README.md#display-banners-under-the-prompt)
 
 
-    * [`shell` API](shell/README.md#module-shelltools.shell.shell)
+    * [`shell` API](shelltools/shell/README.md#module-shelltools.shell.shell)
 
 
-        * [`Shell`](shell/README.md#shelltools.shell.shell.Shell)
+        * [`Shell`](shelltools/shell/README.md#shelltools.shell.shell.Shell)
 
 
-            * [`Shell.banner()`](shell/README.md#shelltools.shell.shell.Shell.banner)
+            * [`Shell.banner()`](shelltools/shell/README.md#shelltools.shell.shell.Shell.banner)
 
 
-            * [`Shell.create_task()`](shell/README.md#shelltools.shell.shell.Shell.create_task)
+            * [`Shell.create_task()`](shelltools/shell/README.md#shelltools.shell.shell.Shell.create_task)
 
 
-            * [`Shell.default()`](shell/README.md#shelltools.shell.shell.Shell.default)
+            * [`Shell.default()`](shelltools/shell/README.md#shelltools.shell.shell.Shell.default)
 
 
-            * [`Shell.do_EOF()`](shell/README.md#shelltools.shell.shell.Shell.do_EOF)
+            * [`Shell.do_EOF()`](shelltools/shell/README.md#shelltools.shell.shell.Shell.do_EOF)
 
 
-            * [`Shell.is_running`](shell/README.md#shelltools.shell.shell.Shell.is_running)
+            * [`Shell.is_running`](shelltools/shell/README.md#shelltools.shell.shell.Shell.is_running)
 
 
-            * [`Shell.log()`](shell/README.md#shelltools.shell.shell.Shell.log)
+            * [`Shell.log()`](shelltools/shell/README.md#shelltools.shell.shell.Shell.log)
 
 
-            * [`Shell.log_error()`](shell/README.md#shelltools.shell.shell.Shell.log_error)
+            * [`Shell.log_error()`](shelltools/shell/README.md#shelltools.shell.shell.Shell.log_error)
 
 
-            * [`Shell.log_help()`](shell/README.md#shelltools.shell.shell.Shell.log_help)
+            * [`Shell.log_help()`](shelltools/shell/README.md#shelltools.shell.shell.Shell.log_help)
 
 
-            * [`Shell.log_status()`](shell/README.md#shelltools.shell.shell.Shell.log_status)
+            * [`Shell.log_status()`](shelltools/shell/README.md#shelltools.shell.shell.Shell.log_status)
 
 
-            * [`Shell.prompt`](shell/README.md#shelltools.shell.shell.Shell.prompt)
+            * [`Shell.prompt`](shelltools/shell/README.md#shelltools.shell.shell.Shell.prompt)
 
 
-            * [`Shell.run()`](shell/README.md#shelltools.shell.shell.Shell.run)
+            * [`Shell.run()`](shelltools/shell/README.md#shelltools.shell.shell.Shell.run)
 
 
-            * [`Shell.use_rawinput`](shell/README.md#shelltools.shell.shell.Shell.use_rawinput)
+            * [`Shell.use_rawinput`](shelltools/shell/README.md#shelltools.shell.shell.Shell.use_rawinput)
 
 
-        * [`ShellError`](shell/README.md#shelltools.shell.shell.ShellError)
+        * [`ShellError`](shelltools/shell/README.md#shelltools.shell.shell.ShellError)
 
 
-    * [`command` API](shell/README.md#module-shelltools.shell.command)
+    * [`command` API](shelltools/shell/README.md#module-shelltools.shell.command)
 
 
-        * [`argument()`](shell/README.md#shelltools.shell.command.argument)
+        * [`argument()`](shelltools/shell/README.md#shelltools.shell.command.argument)
 
 
-        * [`command()`](shell/README.md#shelltools.shell.command.command)
+        * [`command()`](shelltools/shell/README.md#shelltools.shell.command.command)
 
 
-    * [`banner` API](shell/README.md#module-shelltools.shell.banner)
+    * [`banner` API](shelltools/shell/README.md#module-shelltools.shell.banner)
 
 
-        * [`BarSpinner`](shell/README.md#shelltools.shell.banner.BarSpinner)
+        * [`BarSpinner`](shelltools/shell/README.md#shelltools.shell.banner.BarSpinner)
 
 
-        * [`ProgressBar`](shell/README.md#shelltools.shell.banner.ProgressBar)
+        * [`ProgressBar`](shelltools/shell/README.md#shelltools.shell.banner.ProgressBar)
 
 
-            * [`ProgressBar.progress`](shell/README.md#shelltools.shell.banner.ProgressBar.progress)
+            * [`ProgressBar.progress`](shelltools/shell/README.md#shelltools.shell.banner.ProgressBar.progress)
 
 
-        * [`TwoWayBar`](shell/README.md#shelltools.shell.banner.TwoWayBar)
+        * [`TwoWayBar`](shelltools/shell/README.md#shelltools.shell.banner.TwoWayBar)
 
 
-            * [`TwoWayBar.progress`](shell/README.md#shelltools.shell.banner.TwoWayBar.progress)
+            * [`TwoWayBar.progress`](shelltools/shell/README.md#shelltools.shell.banner.TwoWayBar.progress)
 
 
-* [Handle a communication with a target through a serial line](remote/README.md)
+* [Handle a communication with a target through a serial line](shelltools/remote/README.md)
 
 
-    * [Generating the extension module from the keyring](remote/README.md#generating-the-extension-module-from-the-keyring)
+    * [Generating the extension module from the keyring](shelltools/remote/README.md#generating-the-extension-module-from-the-keyring)
 
 
-    * [Setting up the connection to the target](remote/README.md#setting-up-the-connection-to-the-target)
+    * [Setting up the connection to the target](shelltools/remote/README.md#setting-up-the-connection-to-the-target)
 
 
-    * [Sending an action request to the target](remote/README.md#sending-an-action-request-to-the-target)
+    * [Sending an action request to the target](shelltools/remote/README.md#sending-an-action-request-to-the-target)
 
 
-    * [`remote` API](remote/README.md#module-shelltools.remote.remote)
+    * [`remote` API](shelltools/remote/README.md#module-shelltools.remote.remote)
 
 
-        * [`Remote`](remote/README.md#shelltools.remote.remote.Remote)
+        * [`Remote`](shelltools/remote/README.md#shelltools.remote.remote.Remote)
 
 
-            * [`Remote.new_request()`](remote/README.md#shelltools.remote.remote.Remote.new_request)
+            * [`Remote.new_request()`](shelltools/remote/README.md#shelltools.remote.remote.Remote.new_request)

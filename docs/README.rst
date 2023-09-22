@@ -51,6 +51,6 @@ Do not forget to test your installation afterwards.
    ./check  
 
 .. toctree::
-   shell/README
-   remote/README
-   tracker/README
+   shelltools/shell/README
+   shelltools/remote/README
+   shelltools/tracker/README
