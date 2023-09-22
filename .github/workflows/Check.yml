@@ -11,5 +11,5 @@ jobs:
     - run: pip3 install pip --upgrade 
     - run: python3 -m venv venv
     - run: source venv/bin/activate
-    - run: pip install .
-    - run: poetry run pytest -s --timeout 3
+    - run: pip install -e .
+    - run: python3 -m pytest -s --timeout 3
