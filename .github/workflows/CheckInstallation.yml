@@ -18,4 +18,4 @@ jobs:
           error
           banner
           panic
-        ' | python3 src/demo.py
+        ' | python3 examples/demo.py
