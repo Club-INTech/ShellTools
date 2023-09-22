@@ -7,9 +7,8 @@ jobs:
     - uses: actions/checkout@v2
     - run: sudo apt install ccache python3.11-dev python3.11-venv
     - run: sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 20
-    - run: pip3 install pip --upgrade 
-    - run: pip3 install pip --upgrade 
-    - run: python3 -m venv venv
-    - run: source venv/bin/activate
-    - run: pip install -e .
-    - run: python3 -m pytest -s --timeout 3
+    - run: curl -sSL https://install.python-poetry.org | \
+           POETRY_HOME=/usr/local/poetry python3.11 -
+    - run: export PATH=/usr/local/poetry/bin:$PATH
+    - run: poetry install
+    - run: poetry run pytest -s --timeout 3
