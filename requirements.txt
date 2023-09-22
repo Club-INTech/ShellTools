@@ -1,6 +1,0 @@
-pandas
-pynput
-pyserial
-terminology
-
-git+https://github.com/StarQTius/Unpadded
