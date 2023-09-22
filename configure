@@ -1,2 +1,0 @@
-git config core.hooksPath .github/hook/
-pip3 install -r requirements.txt -r requirements_dev.txt

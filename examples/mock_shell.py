@@ -1,4 +1,5 @@
 import asyncio as aio
+from asyncio import run
 from math import sin
 
 import terminology as tmg
@@ -141,3 +142,7 @@ class MockShell(Shell):
                     tuple: lambda _: None,
                 }
                 await aio.sleep(10e-3)
+
+
+if __name__ == "__main__":
+    run(MockShell().run())

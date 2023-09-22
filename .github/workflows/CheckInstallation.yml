@@ -7,7 +7,9 @@ jobs:
     - uses: actions/checkout@v2
     - run: sudo apt install ccache
     - run: pip3 install pip --upgrade 
-    - run: pip3 install -r requirements.txt
+    - run: python3 -m venv venv
+    - run: source venv/bin/activate
+    - run: pip install .
     - run: >-
         echo '
           alert
@@ -15,4 +17,4 @@ jobs:
           error
           banner
           panic
-        ' | python3 demo.py
+        ' | python3 src/demo.py

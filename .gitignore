@@ -1,7 +1,8 @@
 /*
 !.gitignore
 !.github/
-!doc/
+!docs/
+!examples/
 !src/
 !tests/
 !README.md

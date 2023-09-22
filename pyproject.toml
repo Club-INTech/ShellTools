@@ -3,6 +3,9 @@ name = "shelltools"
 version = "0.0.0"
 description = ""
 authors = []
+packages = [
+    { include = "shelltools", from="src" },
+]
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"

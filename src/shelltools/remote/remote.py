@@ -7,8 +7,8 @@ from warnings import warn
 import serial as sr
 from unpadded import Client, PacketStatus  # type: ignore
 
-from annotation import DispatcherLike, KeyLike
-from utility.match import Match
+from shelltools.annotation import DispatcherLike, KeyLike
+from shelltools.utility.match import Match
 
 IO_REFRESH_DELAY_S = 50e-3
 RESPONSE_CHECK_DELAY_S = 1e-3

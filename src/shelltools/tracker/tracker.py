@@ -6,7 +6,7 @@ from typing import List
 from pandas import DataFrame
 from unpadded import Client  # type: ignore
 
-from annotation import KeyLike
+from shelltools.annotation import KeyLike
 
 WRITE_MEASURE_REFRESH_DELAY_S = 1e-3
 

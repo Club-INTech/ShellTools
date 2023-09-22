@@ -5,7 +5,7 @@ from warnings import simplefilter
 import pytest
 from mock_serial.pytest import *
 
-from remote import *
+from shelltools.remote import *
 
 from . import test_extension_module as tem  # type: ignore
 

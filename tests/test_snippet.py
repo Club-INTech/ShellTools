@@ -2,9 +2,9 @@ import asyncio
 
 import pytest
 
-from shell import *
-from shell.banner import *
-from shell.command import argument, command
+from shelltools.shell import *
+from shelltools.shell.banner import *
+from shelltools.shell.command import argument, command
 
 
 class MyShell(Shell):

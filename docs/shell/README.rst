@@ -56,18 +56,18 @@ It is possible to display one-line animations under the prompt like loading bars
 ``shell`` API
 -------------
 
-.. automodule:: shell.shell
+.. automodule:: shelltools.shell.shell
   :members:
 
 ``command`` API
 ---------------
 
-.. automodule:: shell.command
+.. automodule:: shelltools.shell.command
   :members:
 
 
 ``banner`` API
 --------------
 
-.. automodule:: shell.banner
+.. automodule:: shelltools.shell.banner
   :members:

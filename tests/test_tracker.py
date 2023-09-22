@@ -1,7 +1,7 @@
 import pytest
 from unpadded import Client  # type: ignore
 
-from tracker import *
+from shelltools.tracker import *
 
 from . import test_extension_module as tem  # type: ignore
 

@@ -29,5 +29,5 @@ Action requests are send to the target through the ``Remote.call`` method.
 ``remote`` API
 --------------
 
-.. automodule:: remote.remote
+.. automodule:: shelltools.remote.remote
   :members:

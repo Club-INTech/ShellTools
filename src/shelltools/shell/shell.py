@@ -8,7 +8,7 @@ from typing import Callable, Coroutine, List, Optional, TextIO, TypeVar
 
 import terminology as tmg
 
-from utility.synchronized_ostream import SynchronizedOStream
+from ..utility.synchronized_ostream import SynchronizedOStream
 
 DEFAULT_PROMPT = "[shell] > "
 

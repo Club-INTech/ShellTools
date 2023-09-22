@@ -63,7 +63,7 @@ Instead of receiving command from the standard input, it is possible of directly
         Print the pressed key
         """
         from pynput.keyboard import Key
-        
+
         while True:
             event_key = await listener.get()
 
