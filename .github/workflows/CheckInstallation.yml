@@ -7,8 +7,8 @@ jobs:
     - uses: actions/checkout@v2
     - run: sudo apt install ccache python3.11-dev python3.11-venv
     - run: sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 20
-    - run: curl -sSL https://install.python-poetry.org | POETRY_HOME=/usr/local/poetry sudo python3.11 -
-    - run: export PATH=/usr/local/poetry/bin:$PATH
+    - run: curl -sSL https://install.python-poetry.org | python3.11 -
+    - run: echo "~/.local/share/pypoetry/bin" >> $GITHUB_PATH
     - run: poetry install
     - run: >-
         echo '
@@ -17,4 +17,4 @@ jobs:
           error
           banner
           panic
-        ' | python3 examples/demo.py
+        ' | poetry run python3 examples/demo.py
