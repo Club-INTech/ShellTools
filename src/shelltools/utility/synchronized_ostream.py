@@ -153,10 +153,6 @@ class SynchronizedOStream(TextIO):
         if not self.__use_rawinput:
             return
 
-        with self:
-            self.__ostream.write(_below(str(banner)))
-            rle.forced_update_display()
-
         while not stop_event.is_set():
             with self:
                 self.__ostream.write(
@@ -167,7 +163,7 @@ class SynchronizedOStream(TextIO):
             await aio.sleep(refresh_delay_s)
 
         with self:
-            self.__ostream.write(_below(position=self.__banners.index(banner)))
+            self.__ostream.write(_below(position=len(self.__banners) - 1))
             rle.forced_update_display()
 
         self.__banners.remove(banner)
